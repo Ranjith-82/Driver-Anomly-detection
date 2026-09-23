@@ -1,0 +1,46 @@
+# Existing Systems
+
+## 1. Introduction
+
+Driver monitoring and driver behaviour detection have been studied using different computer vision, machine learning, and deep learning techniques.
+
+Existing systems generally focus on detecting individual unsafe behaviours such as:
+
+- Drowsiness
+- Eye closure
+- Yawning
+- Distraction
+- Phone usage
+- Head movement
+- Inattention
+
+Different approaches use facial landmarks, image classification, object detection, temporal models, or combinations of these techniques.
+
+The study of existing systems helps identify their strengths and limitations and provides a basis for selecting suitable technologies for the proposed project.
+
+---
+
+# 2. Traditional Driver Monitoring Systems
+
+Early driver monitoring systems primarily relied on manually designed image-processing features and predefined thresholds.
+
+Common measurements included:
+
+- Eye closure
+- Blink frequency
+- Mouth opening
+- Head orientation
+- Facial movement
+
+A simplified approach can be represented as:
+
+```text
+Camera
+   ↓
+Image Processing
+   ↓
+Feature Extraction
+   ↓
+Threshold-Based Rules
+   ↓
+Driver State

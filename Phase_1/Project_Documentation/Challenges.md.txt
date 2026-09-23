@@ -1,0 +1,113 @@
+# Challenges
+
+## 1. Introduction
+
+Developing a real-time driver behaviour anomaly detection system involves several technical and practical challenges.
+
+The project combines computer vision, facial analysis, object detection, feature extraction, temporal modelling, and real-time alerting. Therefore, challenges can occur at different stages of the system.
+
+The major challenges identified during the project are described below.
+
+---
+
+# 2. Dataset Challenges
+
+## 2.1 Limited Dataset Diversity
+
+Driver behaviour datasets may not contain sufficient variation in:
+
+- Driver appearance
+- Age groups
+- Facial characteristics
+- Driving environments
+- Lighting conditions
+- Camera positions
+- Behaviour patterns
+
+A model trained on limited data may not generalize well to unseen drivers.
+
+### Challenge
+
+Obtaining a sufficiently diverse dataset for all required behaviours is difficult.
+
+### Project Approach
+
+The project considers publicly available datasets together with a custom self-collected dataset to increase behavioural variation.
+
+---
+
+## 2.2 Limited Video-Based Data
+
+Some driver behaviour datasets are image-based rather than video-based.
+
+However, behaviours such as:
+
+- Drowsiness
+- Eye closure
+- Yawning
+- Distraction
+
+can depend on how the behaviour changes over time.
+
+### Challenge
+
+Image datasets do not directly provide continuous temporal sequences.
+
+### Project Approach
+
+Video data is considered where temporal behaviour analysis is required. Video frames can be extracted and converted into sequential feature representations.
+
+---
+
+# 3. Facial Detection Challenges
+
+## 3.1 Lighting Conditions
+
+Facial landmark detection can be affected by:
+
+- Low-light environments
+- Strong sunlight
+- Shadows
+- Sudden changes in illumination
+- Night-time conditions
+
+### Challenge
+
+The same driver behaviour may produce different visual features under different lighting conditions.
+
+### Project Approach
+
+The system considers preprocessing and augmentation techniques to improve robustness to variations in image conditions.
+
+---
+
+## 3.2 Face Occlusion
+
+The driver's face may be partially blocked by:
+
+- Spectacles
+- Masks
+- Hands
+- Objects
+- Vehicle components
+
+### Challenge
+
+Occlusion can reduce the accuracy of facial landmark detection and affect EAR, MAR, and head-pose calculations.
+
+### Project Approach
+
+The system uses multiple behavioural features rather than depending entirely on one facial measurement.
+
+---
+
+## 3.3 Camera Position and Orientation
+
+The position of the camera can affect facial landmark detection.
+
+For example:
+
+```text
+Front-facing camera
+       ↓
+Better facial visibility

@@ -1,0 +1,107 @@
+# Problem Statement
+
+## 1. Background
+
+Road accidents are significantly influenced by human factors, including driver drowsiness, distraction, inattention, and other unsafe driving behaviours.
+
+Traditional vehicle safety systems mainly focus on vehicle-level information and may not continuously analyse the driver's visual behaviour. This creates a need for intelligent systems that can monitor the driver in real time and identify potentially unsafe conditions.
+
+---
+
+## 2. Problem
+
+Drivers may become drowsy, distracted, or inattentive while operating a vehicle. Behaviours such as prolonged eye closure, yawning, talking, looking away from the road, and using distraction-related objects such as mobile phones can reduce the driver's attention.
+
+A major challenge is to detect these behaviours accurately from real-time video while maintaining low processing latency.
+
+The system must therefore analyse both:
+
+- **Facial and visual characteristics**
+- **Behavioural patterns over time**
+
+rather than relying only on a single video frame.
+
+---
+
+## 3. Proposed Problem
+
+The project aims to develop a **real-time Driver Behavior Anomaly Detection system** using computer vision and deep learning techniques to monitor the driver and identify potentially unsafe behaviours.
+
+The proposed system analyses camera input using multiple complementary modules, including:
+
+- Face Recognition for driver identification.
+- MediaPipe Face Mesh for facial landmark extraction.
+- EAR for eye-state and eye-closure analysis.
+- MAR for mouth movement and yawning analysis.
+- Head Pose estimation for head orientation.
+- YOLOv8 for detecting distraction-related objects.
+- Temporal feature analysis for understanding behaviour across consecutive frames.
+
+The outputs of these modules can be represented as numerical features and combined into feature vectors. These feature vectors can then be organized into temporal sequences for behaviour classification using an LSTM-based approach.
+
+---
+
+## 4. Key Problem Areas
+
+The project addresses the following major problems:
+
+### 4.1 Drowsiness Detection
+
+A driver may show signs of fatigue through prolonged eye closure, increased blinking, yawning, or changes in head position.
+
+A single frame is not sufficient to reliably determine drowsiness. Therefore, eye and facial features need to be analysed over time.
+
+### 4.2 Driver Distraction
+
+Distraction can occur when the driver looks away from the road, talks, interacts with objects, or uses a mobile phone.
+
+The system therefore considers both facial behaviour and object detection.
+
+### 4.3 Behavioural Analysis
+
+Driver behaviour is dynamic and changes across consecutive video frames.
+
+For this reason, temporal information is important for distinguishing short-term actions from sustained abnormal behaviour.
+
+### 4.4 Real-Time Processing
+
+Running multiple computer vision and deep learning models simultaneously can increase computational load and introduce latency.
+
+The system therefore requires a modular and optimized processing approach that can maintain real-time performance.
+
+### 4.5 False Alerts
+
+A temporary action should not necessarily be classified as an unsafe behaviour.
+
+For example, a brief eye closure may be a normal blink rather than drowsiness.
+
+The system therefore needs temporal analysis and appropriate decision logic to reduce unnecessary alerts.
+
+---
+
+## 5. Problem Statement
+
+> **To develop a real-time driver behaviour anomaly detection system using computer vision and deep learning techniques that can monitor driver facial behaviour and distraction-related objects, analyse behavioural patterns over time, identify potentially unsafe driving conditions such as drowsiness and distraction, and provide timely alerts while maintaining efficient real-time performance.**
+
+---
+
+## 6. Problem-to-Solution Direction
+
+The problem identified in the initial phase leads to the following technical direction:
+
+```text
+Driver Behaviour Problem
+          ↓
+Real-Time Camera Input
+          ↓
+Multiple Visual Analysis Modules
+          ↓
+Facial Features + Object Information
+          ↓
+Numerical Feature Representation
+          ↓
+Temporal Sequence Analysis
+          ↓
+Behaviour Classification
+          ↓
+Alert Generation

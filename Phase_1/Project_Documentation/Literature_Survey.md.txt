@@ -1,0 +1,18 @@
+1. Introduction
+2. Purpose of Literature Survey
+3. Literature Survey
+   3.1 Driver Drowsiness Detection
+   3.2 Facial Landmark-Based Detection
+   3.3 EAR-Based Eye Closure Detection
+   3.4 MAR-Based Yawning Detection
+   3.5 Head Pose-Based Distraction Detection
+   3.6 Object-Based Driver Distraction Detection
+   3.7 CNN-Based Driver Behaviour Analysis
+   3.8 LSTM-Based Temporal Behaviour Analysis
+   3.9 Hybrid CNN-LSTM Approaches
+   3.10 Multi-Feature Driver Monitoring
+4. Comparative Analysis
+5. Research Findings
+6. Technology Selection Based on Literature
+7. Relevance to Proposed Project
+8. Summary

@@ -1,0 +1,113 @@
+# Research & Technology Gap
+
+## 1. Introduction
+
+Driver behaviour monitoring is an important area of Intelligent Transportation Systems (ITS), with the objective of identifying unsafe driver behaviours before they lead to accidents.
+
+The Phase 1 study identified several challenges in existing driver monitoring systems, including limited dataset diversity, poor generalization across different drivers and environments, false-positive alerts, computational limitations, and difficulties in understanding behaviour over time.
+
+The research and technology gap analysis was performed to identify these limitations and determine the technical direction for the proposed project.
+
+The initial Phase 1 investigation considered deep learning approaches such as CNNs, LSTM networks, and Autoencoders for driver behaviour anomaly detection. Based on further study and project development, the technical direction was refined toward a modular computer-vision and temporal-analysis architecture.
+
+---
+
+# 2. Research Gaps
+
+## 2.1 Limited Dataset Diversity
+
+Many existing driver behaviour detection systems are developed using datasets with limited variations in:
+
+- Driver appearance
+- Lighting conditions
+- Camera positions
+- Driver behaviours
+- Facial characteristics
+- Driving environments
+- Occlusions
+
+A model trained on a limited set of drivers or environments may not generalize effectively to unseen drivers and real-world conditions.
+
+### Identified Gap
+
+There is a need for more diverse driver behaviour data containing different people, behaviours, lighting conditions, and environmental situations.
+
+### Project Direction
+
+The project considers publicly available datasets together with a custom self-collected driver behaviour dataset to provide additional behavioural variation.
+
+---
+
+## 2.2 Limited Generalization
+
+A driver monitoring model that performs well on its training dataset may not provide the same performance when applied to different drivers or environments.
+
+Factors such as:
+
+- Different facial structures
+- Different seating positions
+- Different camera angles
+- Spectacles
+- Lighting changes
+- Partial face occlusion
+- Different driving behaviours
+
+can affect detection performance.
+
+### Identified Gap
+
+Existing systems may require improved robustness and generalization across different real-world conditions.
+
+### Project Direction
+
+The proposed system uses multiple complementary features, including facial landmarks, eye behaviour, mouth behaviour, head pose, and object information, instead of relying on only one visual feature.
+
+---
+
+## 2.3 Real-Time Computational Constraints
+
+Real-time driver monitoring requires continuous processing of camera frames.
+
+Using several computationally expensive deep learning models simultaneously can introduce:
+
+- Processing delay
+- Low FPS
+- High CPU/GPU usage
+- Increased system latency
+- Reduced responsiveness
+
+This is especially important when multiple modules such as face recognition, facial landmark detection, and object detection operate simultaneously.
+
+### Identified Gap
+
+There is a need for efficient architectures that can perform driver monitoring while maintaining acceptable real-time performance.
+
+### Project Direction
+
+The project follows a modular and optimized processing approach.
+
+Different modules can operate at different processing frequencies instead of running every expensive model on every camera frame.
+
+For example:
+
+```text
+Camera
+   ↓
+Frame Capture
+   ↓
+Latest Frame Buffer
+   ↓
+ ┌──────────────┬──────────────┬──────────────┐
+ ↓              ↓              ↓
+Face Mesh   Face Recognition   YOLOv8
+ ↓              ↓              ↓
+Features       Driver ID       Objects
+ └──────────────┴──────────────┘
+                ↓
+         Feature Fusion
+                ↓
+         Feature Buffer
+                ↓
+              LSTM
+                ↓
+       Behaviour Classification

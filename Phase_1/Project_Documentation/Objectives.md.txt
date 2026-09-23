@@ -1,0 +1,61 @@
+# Objectives
+
+## 1. Primary Objective
+
+To develop a real-time driver behaviour anomaly detection system using computer vision and deep learning techniques to identify potentially unsafe driver behaviours and provide timely alerts for improved road safety.
+
+---
+
+## 2. Specific Objectives
+
+### 2.1 Driver Identification
+
+To identify the driver using a face recognition module and associate the detected behaviour with the corresponding driver.
+
+### 2.2 Facial Behaviour Monitoring
+
+To monitor facial characteristics using facial landmark detection and extract relevant features such as:
+
+- Eye Aspect Ratio (EAR)
+- Mouth Aspect Ratio (MAR)
+- Head Pose
+- Eye state
+- Facial movement
+
+These features are used to identify behavioural indicators such as eye closure, yawning, talking, and changes in head orientation.
+
+### 2.3 Drowsiness and Fatigue Detection
+
+To detect possible driver drowsiness by analysing eye closure, blink-related information, yawning, and other facial characteristics over a period of time.
+
+The system should distinguish between short-duration normal actions, such as blinking, and prolonged patterns that may indicate fatigue.
+
+### 2.4 Driver Distraction Detection
+
+To identify potentially distracting driver behaviours by analysing facial/head orientation and relevant visual cues.
+
+The system also considers distraction-related objects detected within the driver's environment.
+
+### 2.5 Object Detection
+
+To use YOLOv8 for detecting objects that may be associated with driver distraction, such as:
+
+- Mobile phones
+- Water bottles
+- Cups
+- Other relevant objects
+
+### 2.6 Feature Extraction and Fusion
+
+To convert the outputs of the individual monitoring modules into numerical feature representations.
+
+The extracted features may include:
+
+```text
+EAR
+MAR
+Head Pose
+Eye State
+Behaviour Indicators
+Detected Objects
+Driver Information

@@ -1,0 +1,132 @@
+# Scope
+
+## 1. Overview
+
+The scope of the project is to develop a real-time driver monitoring system capable of analysing visual information from the driver and identifying potentially unsafe driving behaviours.
+
+The system combines computer vision and deep learning techniques to monitor facial behaviour, identify distraction-related objects, analyse temporal behaviour, and generate alerts.
+
+---
+
+## 2. In-Scope Features
+
+### 2.1 Real-Time Camera Monitoring
+
+The system uses a camera as the primary input source for continuously monitoring the driver.
+
+The incoming video is processed frame by frame using the different monitoring modules.
+
+---
+
+### 2.2 Driver Face Recognition
+
+A face recognition module is used to identify the driver.
+
+The recognised driver information can be associated with the behaviour detected by the monitoring system.
+
+---
+
+### 2.3 Facial Landmark Detection
+
+MediaPipe Face Mesh is used to obtain facial landmarks from the driver's face.
+
+These landmarks provide the basis for calculating facial and head-related features.
+
+---
+
+### 2.4 Eye Behaviour Analysis
+
+The system analyses eye-related information using facial landmarks.
+
+The main feature used is:
+
+- Eye Aspect Ratio (EAR)
+
+EAR can be used to determine eye state and analyse eye closure over time.
+
+---
+
+### 2.5 Mouth Behaviour Analysis
+
+The system uses:
+
+- Mouth Aspect Ratio (MAR)
+
+to analyse mouth movements.
+
+This information can support the detection of behaviours such as yawning and talking.
+
+---
+
+### 2.6 Head Pose Analysis
+
+The system analyses head orientation using head-pose information such as:
+
+- Pitch
+- Yaw
+- Roll
+
+Head-pose information can help identify changes in driver attention and orientation.
+
+---
+
+### 2.7 Drowsiness Detection
+
+The system aims to detect possible drowsiness using a combination of:
+
+- Eye closure
+- EAR
+- Blink-related information
+- Yawning
+- Head pose
+- Temporal duration of observed behaviour
+
+The system does not treat every single closed-eye frame as drowsiness. Temporal information is considered to distinguish short-duration events from prolonged patterns.
+
+---
+
+### 2.8 Driver Distraction Detection
+
+The system aims to identify potentially distracting behaviours using facial and visual information.
+
+Examples include:
+
+- Looking away from the forward direction
+- Talking
+- Interaction with distraction-related objects
+- Mobile phone usage
+
+---
+
+### 2.9 Object Detection
+
+YOLOv8 is used as the object detection component.
+
+The system can be developed to detect distraction-related objects such as:
+
+- Mobile phones
+- Water bottles
+- Cups
+- Other relevant objects
+
+---
+
+### 2.10 Feature Extraction
+
+The outputs from the individual modules are converted into numerical features.
+
+Example:
+
+```text
+[
+    EAR,
+    MAR,
+    Head_Pitch,
+    Head_Yaw,
+    Head_Roll,
+    Eye_State,
+    Phone,
+    Bottle,
+    Cup,
+    Behaviour_Indicators
+]

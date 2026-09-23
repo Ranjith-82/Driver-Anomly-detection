@@ -1,0 +1,28 @@
+# Phase 1 Summary
+
+## 1. Introduction
+
+Phase 1 of the project focused on understanding the problem of driver behaviour anomaly detection, studying existing approaches, exploring suitable datasets, identifying research and technology gaps, and determining a suitable technical direction for further development.
+
+The main objective of Phase 1 was not to complete the final system, but to establish the research foundation and baseline direction for Phase 2 implementation.
+
+---
+
+# 2. Project Background
+
+Driver behaviour is an important factor in road safety. Unsafe behaviours such as drowsiness, distraction, inattention, and other abnormal driving patterns can increase the risk of accidents.
+
+The project was initiated to investigate how computer vision and deep learning techniques can be used to monitor driver behaviour and provide timely alerts when potentially unsafe behaviour is detected.
+
+The initial project direction focused broadly on:
+
+```text
+Driver Behaviour
+      ↓
+Anomaly Detection
+      ↓
+Deep Learning
+      ↓
+Real-Time Monitoring
+      ↓
+Accident Prevention
