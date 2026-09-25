@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Large dataset archives
+*.zip
+*.rar
+*.7z
+
+# Actual dataset folders
+data/Dashcam/
+data/Mirror_cam/
