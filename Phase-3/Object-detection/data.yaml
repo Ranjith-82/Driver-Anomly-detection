@@ -1,0 +1,9 @@
+path: C:/Users/Chetan/OneDrive/Desktop/PES/Projects/Capstone/YOLOv8_Working/Dataset
+
+train: images/train
+val: images/val
+test: images/test
+
+nc: 1
+names:
+  0: cigarette
