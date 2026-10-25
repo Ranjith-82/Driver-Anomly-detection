@@ -228,3 +228,30 @@ __marimo__/
 # Actual dataset folders
 data/Dashcam/
 data/Mirror_cam/
+
+# Local driver records and generated face images
+data/local/
+**/drivers_database.pkl
+**/driver_photos/
+
+# Local emotion evaluation inputs and session output
+data/emotion-evaluation/
+**/emotion-session-*.json
+**/emotion-session-*.csv
+
+# Python environments
+.venv/
+venv/
+
+# Spec Kit planning artifacts and local command definitions
+.specify/
+specs/
+.github/skills/
+
+# Editor and operating-system temporary files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driver-monitor"
+version = "0.1.0"
+description = "Local desktop driver monitoring tools"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = []
+
+[project.optional-dependencies]
+monitor = [
+    "mediapipe==0.10.10",
+    "numpy==1.26.4",
+    "opencv-contrib-python==4.10.0.84",
+    "protobuf==3.20.3",
+    "scikit-learn==1.7.1",
+    "ultralytics==8.4.33",
+    "Pillow==11.2.1",
+]
+emotion = [
+    "deepface==0.0.93",
+    "tensorflow==2.18.0",
+    "tf-keras==2.18.0",
+]
+recognition = ["face-recognition==1.3.0"]
+test = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
