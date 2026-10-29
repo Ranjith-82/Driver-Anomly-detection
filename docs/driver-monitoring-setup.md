@@ -7,6 +7,42 @@
   `python -m pip install -e ".[monitor,recognition,emotion]"`.
 - Launch the buffered monitor with `python -m driver_monitor`; `--benchmark` prints aggregate
   capture-to-render timings when the session exits.
+- Telegram notifications are sent for supported driver-safety alerts and camera errors. In
+  PowerShell, set the bot token and destination chat ID before launching the monitor:
+
+  ```powershell
+  $env:DRIVER_MONITOR_BOT_TOKEN = "your_bot_token"
+  $env:DRIVER_MONITOR_CHAT_ID = "your_chat_id"
+  python -m driver_monitor
+  ```
+
+  Keep the token private; do not commit it to the repository. Credentials are read from the
+  current process environment and are not saved by the application.
+- YOLO model loading begins on a separate worker while gaze calibration runs. Timestamped
+  `[TIMING]` messages distinguish camera readiness/first frame, calibration, PyTorch and
+  Ultralytics imports, model construction/class validation/device selection, first inference,
+  and first detection. The worker reports initialization errors in the dashboard and console.
+- Phone predictions remain visible as raw boxes, but phone presence is not treated as driver
+  use. A phone must persist across frames before confirmation; a separate suspected-use state
+  requires a confirmed driver identity and a persistent phone prediction near that driver's
+  recognized face region. This is a conservative spatial heuristic, not proof of phone use.
+  Configure these windows with `--phone-persistence-seconds`,
+  `--driver-phone-suspicion-seconds`,
+  `--driver-phone-alert-persistence-seconds`, and
+  `--object-max-missed-frames`.
+- Talking, yawning, and distraction behavior labels are debounced independently of the
+  classifier. Fatigue remains immediate; the four behavior persistence options are
+  `--talking-persistence-seconds`, `--yawning-persistence-seconds`,
+  `--behavior-distraction-persistence-seconds`, and
+  `--behavior-clear-persistence-seconds`.
+- The live dashboard includes a driver-alert panel beside the camera feed. On Windows, new
+  alerts use generated Windows waveform audio for beeps and one persistent Windows speech
+  synthesizer running in the audio worker. Fatigue speech repeats no faster than every 45
+  seconds; distraction starts after 1.5 continuous seconds and repeats a 900 Hz/180 ms beep
+  and voice no faster than every 4 seconds; each yawn event receives two 650 Hz/120 ms beeps
+  with a 120 ms gap, no faster than every 10 seconds. Talking is announced only after four
+  separate detected episodes and no more than once every two minutes. Audio is disabled with
+  `--mute`. Ensure Windows output-device and application volumes are enabled.
 - Launch profile management with `python -m driver_monitor --profiles`.
 - The packaged buffered runtime uses the Phase 3 script location for legacy algorithm modules
   and model/profile compatibility; the Phase 3 path is a thin wrapper and does not open a second
@@ -69,6 +105,7 @@ combined installation as supported.
 | Existing facial behavior algorithm source | `Phase-2/Face_monitoring_system/`, invoked through `src/driver_monitor/detection/behavior.py` |
 | Gaze algorithm source | `Phase-3/Buffered-system/buffered_system/Buffer/Buffered_system/`, invoked through `src/driver_monitor/detection/gaze.py` |
 | YOLO inference adapter and class mapping | `src/driver_monitor/detection/objects.py` |
+| Object and behavior temporal validation | `src/driver_monitor/monitoring/temporal.py` |
 | Profile UI, validation, and repository | `src/driver_monitor/profiles/` and `src/driver_monitor/ui/driver_profiles.py` |
 | Deterministic tests | `tests/unit/` and `tests/integration/` |
 

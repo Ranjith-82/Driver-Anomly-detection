@@ -55,6 +55,9 @@ class CombinedMonitoringTests(unittest.TestCase):
             "gaze_distraction_confirmed": True,
             "yawn_event": False,
             "object_detections": [{"class_id": 0}],
+            "driver_confirmed": True,
+            "phone_detection_confirmed": True,
+            "driver_phone_alert": True,
         }
         without_emotion = build_safety_alerts(base)
         with_emotion = build_safety_alerts({**base, "emotion": "anger"})

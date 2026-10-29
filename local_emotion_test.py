@@ -13,6 +13,7 @@ emotion_label = "Starting..."
 
 try:
     while True:
+        ok, frame = cap.read()
         if not ok:
             print("ERROR: Could not read webcam frame.")
             break

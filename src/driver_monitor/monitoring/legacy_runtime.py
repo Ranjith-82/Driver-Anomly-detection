@@ -41,8 +41,18 @@ from driver_monitor.monitoring.alerts import (
 from driver_monitor.monitoring.buffers import LatestFrameBuffer
 from driver_monitor.monitoring.camera import CameraProducer
 from driver_monitor.monitoring.metrics import LatencyTracker
+from driver_monitor.monitoring.sound import AlertAudioManager, AlertAudioWorker
+from driver_monitor.monitoring.temporal import (
+    BehaviorTemporalFilter,
+    PhoneDetectionValidator,
+)
+from driver_monitor.monitoring.timing import log_timing
 from driver_monitor.monitoring.workers import EmotionWorker
 from driver_monitor.profiles.repository import DriverProfileRepository
+from driver_monitor.ui.alert_panel import (
+    TALKING_ALERT_THRESHOLD,
+    render_alert_panel,
+)
 
 try:
     import integrated_driver_system_optimized as telegram_source
@@ -79,7 +89,7 @@ OBJECT_DETECTION_CLASS_CONFIDENCE = {
     3: 0.40,
 }
 OBJECT_DETECTION_ALERTS = {
-    0: ('MOBILE PHONE DETECTED', 'mobile_phone'),
+    0: ('POSSIBLE DRIVER PHONE USE', 'mobile_phone'),
     1: ('CIGARETTE DETECTED', 'cigarette'),
     2: ('CUP DETECTED', 'cup'),
     3: ('BOTTLE DETECTED', 'bottle'),
@@ -106,6 +116,7 @@ class ResultBuffer:
             'driver_confirmed': False,
             'recognition_active': True,
             'behavior': 'FACE NOT DETECTED',
+            'raw_behavior': 'FACE NOT DETECTED',
             'left_ear': None,
             'right_ear': None,
             'average_ear': None,
@@ -139,6 +150,13 @@ class ResultBuffer:
             'object_detection_frame_id': -1,
             'object_detection_timestamp': 0.0,
             'object_detection_error': '',
+            'object_detection_status': 'waiting',
+            'phone_present': False,
+            'phone_detection_confirmed': False,
+            'confirmed_phone_detections': [],
+            'suspected_driver_phone_use': False,
+            'driver_phone_alert': False,
+            'phone_track_state': 'none',
             'feature_fusion': None,
             'feature_vector': [],
             'feature_names': list(FEATURE_NAMES),
@@ -173,6 +191,7 @@ class FaceRecognitionWorker(threading.Thread):
         self.resize_scale = resize_scale
         self.recognizer = None
         self.last_frame_id = -1
+        self.temporal_filter = BehaviorTemporalFilter()
         self.next_run = 0.0
         self.confirmation_counts = Counter()
         self.confirmation_required = confirmations
@@ -377,6 +396,7 @@ class BehaviorWorker(threading.Thread):
                        gaze_distraction_timer):
         landmarks = detector.extract(packet.frame)
         if landmarks is None:
+            self.temporal_filter.reset('FACE NOT DETECTED')
             state.update_distraction('HEAD POSITION UNCERTAIN', False)
             gaze_distraction_timer.update(None, packet.timestamp)
             previous = self.result_buffer.snapshot()
@@ -385,6 +405,7 @@ class BehaviorWorker(threading.Thread):
                 face_lost_since = packet.timestamp
             self.result_buffer.update({
                 'behavior': 'FACE NOT DETECTED',
+                'raw_behavior': 'FACE NOT DETECTED',
                 'face_present': False,
                 'face_bounds': None,
                 'face_lost_since': face_lost_since,
@@ -443,8 +464,10 @@ class BehaviorWorker(threading.Thread):
             landmarks, packet.frame.shape[1], packet.frame.shape[0])
         smoothed_pose = pose.update(rotation)
         if pose.calibrating or smoothed_pose is None:
+            self.temporal_filter.reset('CALIBRATING')
             self.result_buffer.update({
                 'behavior': 'CALIBRATING',
+                'raw_behavior': 'CALIBRATING',
                 'face_present': True,
                 'face_bounds': face_bounds,
                 'face_lost_since': None,
@@ -476,19 +499,21 @@ class BehaviorWorker(threading.Thread):
         behavior_confidence = float(probabilities[index])
         ml_label = str(encoder.inverse_transform([index])[0])
         if fatigue:
-            behavior = 'FATIGUE ALERT'
+            raw_behavior = 'FATIGUE ALERT'
         elif distracted:
-            behavior = 'DISTRACTED'
+            raw_behavior = 'DISTRACTED'
         elif yawn_event or mouth.yawn_active:
-            behavior = 'YAWNING'
+            raw_behavior = 'YAWNING'
         elif talking:
-            behavior = 'TALKING'
+            raw_behavior = 'TALKING'
         elif ml_label in {'talking', 'yawning'} and behavior_confidence >= self.confidence:
-            behavior = ml_label.upper()
+            raw_behavior = ml_label.upper()
         else:
-            behavior = 'NORMAL'
+            raw_behavior = 'NORMAL'
+        behavior = self.temporal_filter.update(raw_behavior, packet.timestamp)
         self.result_buffer.update({
-            'behavior': behavior, 'left_ear': left_ear, 'right_ear': right_ear,
+            'behavior': behavior, 'raw_behavior': raw_behavior,
+            'left_ear': left_ear, 'right_ear': right_ear,
             'face_present': True,
             'face_bounds': face_bounds,
             'face_lost_since': None,
@@ -499,7 +524,8 @@ class BehaviorWorker(threading.Thread):
             'head_position': head_position, 'fatigue_alert': fatigue,
             'distracted': distracted, 'yawning': yawn_event or mouth.yawn_active,
             'yawn_event': yawn_event,
-            'talking': talking, 'behavior_confidence': behavior_confidence,
+            'talking': behavior == 'TALKING',
+            'behavior_confidence': behavior_confidence,
             'behavior_frame_id': packet.frame_id, 'behavior_timestamp': packet.timestamp,
             'gaze_direction': gaze_direction,
             'gaze_x': gaze_position.x if gaze_position else None,
@@ -512,25 +538,53 @@ class BehaviorWorker(threading.Thread):
 class ObjectDetectionWorker(threading.Thread):
     """Runs object detection on the shared latest-frame buffer."""
 
-    def __init__(self, frame_buffer, result_buffer, stop_event, model_path):
+    def __init__(
+        self,
+        frame_buffer,
+        result_buffer,
+        stop_event,
+        model_path,
+        *,
+        phone_persistence_seconds=0.3,
+        driver_use_persistence_seconds=0.75,
+        driver_alert_persistence_seconds=0.5,
+        max_missed_frames=2,
+    ):
         super().__init__(name='object-detection-worker', daemon=True)
         self.frame_buffer = frame_buffer
         self.result_buffer = result_buffer
         self.stop_event = stop_event
         self.model_path = model_path
         self.last_frame_id = -1
+        self.phone_validator = PhoneDetectionValidator(
+            persistence_seconds=phone_persistence_seconds,
+            use_persistence_seconds=driver_use_persistence_seconds,
+            alert_persistence_seconds=driver_alert_persistence_seconds,
+            max_missed_frames=max_missed_frames,
+        )
 
     def run(self):
         try:
+            self.result_buffer.update({
+                'object_detection_status': 'loading',
+                'object_detection_error': '',
+            })
             detector = YoloObjectDetector(self.model_path)
-            import torch
-
-            use_gpu = torch.cuda.is_available()
+            use_gpu = detector.device_name == "CUDA GPU"
             print(
-                f'[YOLO] Object detection worker started using '
+                f'[YOLO] Model loaded using '
                 f'{self.model_path.name} on '
                 f'{"CUDA GPU" if use_gpu else "CPU"}')
+            log_timing(
+                "YOLO_MODEL_LOADED",
+                model=self.model_path.name,
+                device="CUDA GPU" if use_gpu else "CPU",
+            )
             history = deque(maxlen=OBJECT_DETECTION_HISTORY_LENGTH)
+            first_worker_inference = True
+            first_worker_detection = True
+            first_confirmed_phone = True
+            frame_count = 0
             while not self.stop_event.is_set():
                 packet = self.frame_buffer.get_newest(
                     self.last_frame_id, self.stop_event)
@@ -550,6 +604,30 @@ class ObjectDetectionWorker(threading.Thread):
                     class_confidence=OBJECT_DETECTION_CLASS_CONFIDENCE,
                     max_box_fraction=0.85,
                 )
+                if first_worker_inference:
+                    log_timing(
+                        "YOLO_WORKER_FIRST_INFERENCE_RETURNED",
+                        frame_id=packet.frame_id,
+                        detection_count=len(detections),
+                    )
+                    self.result_buffer.update({
+                        'object_detection_status': 'ready',
+                    })
+                    log_timing(
+                        "YOLO_WORKER_READY",
+                        model=self.model_path.name,
+                        device=detector.device_name,
+                    )
+                    first_worker_inference = False
+                if detections and first_worker_detection:
+                    log_timing(
+                        "YOLO_WORKER_FIRST_VALID_DETECTION",
+                        frame_id=packet.frame_id,
+                        class_id=detections[0]['class_id'],
+                        confidence=f'{detections[0]["confidence"]:.3f}',
+                    )
+                    first_worker_detection = False
+                validation_started = time.perf_counter()
                 history.append({
                     detection['class_id'] for detection in detections
                 })
@@ -563,6 +641,42 @@ class ObjectDetectionWorker(threading.Thread):
                     if hit_counts[detection['class_id']]
                     >= OBJECT_DETECTION_MIN_HITS
                 ]
+                recognition = self.result_buffer.snapshot()
+                phone_state = self.phone_validator.update(
+                    detections,
+                    packet.timestamp,
+                    driver_confirmed=recognition.get('driver_confirmed') is True,
+                    driver_location=recognition.get('recognition_location'),
+                )
+                frame_count += 1
+                if frame_count == 1:
+                    log_timing(
+                        "YOLO_FIRST_TEMPORAL_VALIDATION",
+                        duration=(
+                            f'{time.perf_counter() - validation_started:.3f}s'),
+                        state=phone_state['phone_track_state'],
+                    )
+                elif frame_count % 30 == 0:
+                    log_timing(
+                        "YOLO_FRAME_TIMING",
+                        frame_id=packet.frame_id,
+                        inference=(
+                            f'{detector.last_inference_seconds:.3f}s'),
+                        postprocess=(
+                            f'{detector.last_postprocess_seconds:.3f}s'),
+                        temporal_filter=(
+                            f'{time.perf_counter() - validation_started:.3f}s'),
+                    )
+                if (
+                    phone_state['phone_detection_confirmed']
+                    and first_confirmed_phone
+                ):
+                    log_timing(
+                        "YOLO_FIRST_CONFIRMED_PHONE",
+                        frame_id=packet.frame_id,
+                        state=phone_state['phone_track_state'],
+                    )
+                    first_confirmed_phone = False
                 print(
                     f'[YOLO] Scanned frame {packet.frame_id}: '
                     f'{len(detections)} detection(s)')
@@ -571,12 +685,16 @@ class ObjectDetectionWorker(threading.Thread):
                     'object_detection_frame_id': packet.frame_id,
                     'object_detection_timestamp': packet.timestamp,
                     'object_detection_error': '',
+                    'object_detection_status': 'ready',
+                    **phone_state,
                 })
         except Exception as error:
             self.result_buffer.update({
                 'object_detections': [],
                 'object_detection_error': str(error),
+                'object_detection_status': 'failed',
             })
+            log_timing("YOLO_WORKER_FAILED", error=str(error))
             print(f'[YOLO] ERROR: {error}')
         finally:
             print('[YOLO] Object detection worker stopped')
@@ -600,6 +718,12 @@ class BufferedDriverMonitor:
             args.pose_yaw, args.pose_pitch, args.mar_threshold,
             args.eye_close_threshold, args.eye_open_threshold, args.fatigue_seconds,
             args.distraction_seconds)
+        self.behavior.temporal_filter = BehaviorTemporalFilter(
+            talking_seconds=args.talking_persistence_seconds,
+            yawning_seconds=args.yawning_persistence_seconds,
+            distraction_seconds=args.behavior_distraction_persistence_seconds,
+            clear_seconds=args.behavior_clear_persistence_seconds,
+        )
         self.gaze_thresholds = None
         self.telegram = PackageTelegramWorker(
             self.stop_event,
@@ -612,9 +736,19 @@ class BufferedDriverMonitor:
             self.telegram, cooldown=args.telegram_cooldown,
             distraction_delay=args.distraction_seconds,
             yawn_cooldown=args.yawn_cooldown)
+        self.alert_audio = AlertAudioWorker(muted=args.mute)
+        self.audio_alerts = AlertAudioManager(
+            self.alert_audio, enabled=not args.mute)
         self.object_detection = ObjectDetectionWorker(
             self.frame_buffer, self.result_buffer, self.stop_event,
-            YOLO_MODEL_PATH)
+            YOLO_MODEL_PATH,
+            phone_persistence_seconds=args.phone_persistence_seconds,
+            driver_use_persistence_seconds=(
+                args.driver_phone_suspicion_seconds),
+            driver_alert_persistence_seconds=(
+                args.driver_phone_alert_persistence_seconds),
+            max_missed_frames=args.object_max_missed_frames,
+        )
         self.latency_tracker = LatencyTracker(max_samples=20000)
         self.emotion = EmotionWorker(
             self.frame_buffer,
@@ -636,6 +770,11 @@ class BufferedDriverMonitor:
 
     def calibrate_gaze(self):
         """Capture all five gaze poses before starting monitoring workers."""
+        calibration_started = time.monotonic()
+        log_timing("GAZE_CALIBRATION_START")
+        self.telegram.start()
+        if self.object_detection.ident is None:
+            self.object_detection.start()
         self.camera.start()
         self.behavior.landmark_detector = (
             behavior_detection.create_landmark_detector(
@@ -726,6 +865,10 @@ class BufferedDriverMonitor:
                 calibration.start_capture(now)
 
         if self.stop_event.is_set():
+            log_timing(
+                "GAZE_CALIBRATION_CANCELLED",
+                duration=f'{time.monotonic() - calibration_started:.3f}s',
+            )
             return False
 
         self.gaze_thresholds = gaze_detection.calibrate_gaze_thresholds(
@@ -739,6 +882,10 @@ class BufferedDriverMonitor:
         print('[GAZE] Personalized thresholds: UP {:.4f}, DOWN {:.4f}'.format(
             self.gaze_thresholds.up, self.gaze_thresholds.down))
         print('[GAZE] Calibration successful; starting driver monitoring')
+        log_timing(
+            "GAZE_CALIBRATION_COMPLETE",
+            duration=f'{time.monotonic() - calibration_started:.3f}s',
+        )
         cv2.destroyWindow('AI Driver Safety Monitor - Gaze Calibration')
         return True
 
@@ -746,11 +893,12 @@ class BufferedDriverMonitor:
         if self.gaze_thresholds is None:
             raise RuntimeError(
                 'Gaze calibration must complete before monitoring starts')
+        self.alert_audio.start()
         self.recognition.start()
         self.behavior.start()
-        self.object_detection.start()
+        if self.object_detection.ident is None:
+            self.object_detection.start()
         self.emotion.start()
-        self.telegram.start()
         print('[BUFFER] Camera and independent workers started')
 
     def stop(self):
@@ -762,8 +910,12 @@ class BufferedDriverMonitor:
                 worker.join(timeout=3.0)
         if self.camera.error:
             print(f'[CAMERA] ERROR: {self.camera.error}')
+            if self.telegram.ident is not None:
+                self.telegram.submit_camera_error(self.camera.error)
         if self.telegram.ident is not None:
             self.telegram.close()
+        if self.alert_audio.ident is not None:
+            self.alert_audio.close()
         if (self.behavior.ident is None
                 and self.behavior.landmark_detector is not None):
             self.behavior.landmark_detector.close()
@@ -807,6 +959,16 @@ class BufferedDriverMonitor:
 
             self.alerts.update(values, packet.frame, packet.timestamp)
             values['alert_status'] = self.alerts.last_alert
+            self.audio_alerts.update(values, packet.timestamp)
+            talking_alert_active = (
+                values['behavior'] == 'TALKING'
+                and values.get('face_present') is True
+                and self.audio_alerts.talking_episodes
+                >= self.audio_alerts.talking_alert_threshold
+            )
+            values['talking_alert_active'] = talking_alert_active
+            values['talking_episode_count'] = (
+                self.audio_alerts.talking_episodes)
             current = time.perf_counter()
             instant = 1.0 / max(current - previous_time, 1e-6)
             fps = instant if fps == 0 else 0.1 * instant + 0.9 * fps
@@ -922,7 +1084,8 @@ class BufferedDriverMonitor:
                       (184, 220, 205), 0.48)
 
         left_x, left_w = 30, 430
-        video_x, video_y, video_w, video_h = 490, 116, 920, 618
+        video_x, video_y, video_w, video_h = 490, 180, 640, 480
+        alert_x, alert_y, alert_w, alert_h = 1150, 116, 260, 618
         bg_card = (22, 31, 42)
         border = (42, 59, 73)
         accent = (119, 211, 198)
@@ -1017,12 +1180,18 @@ class BufferedDriverMonitor:
             x1, y1, x2, y2 = detection['box']
             class_id = detection['class_id']
             class_name = detection['name']
-            detected_object_classes.add(class_id)
+            if class_id != 0:
+                detected_object_classes.add(class_id)
             color = (0, 0, 255) if class_id in {0, 1} else (0, 200, 90)
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
             label = f'{class_name} {detection["confidence"]:.2f}'
             cv2.putText(frame, label, (x1, max(y1 - 8, 20)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2, cv2.LINE_AA)
+        if (
+            values.get('driver_phone_alert') is True
+            and values.get('driver_confirmed') is True
+        ):
+            detected_object_classes.add(0)
         if detected_object_classes:
             object_alert = OBJECT_DETECTION_ALERTS[
                 min(detected_object_classes)][0]
@@ -1044,7 +1213,8 @@ class BufferedDriverMonitor:
         video_frame = np.full((video_h + 8, video_w + 8, 3),
                               (42, 59, 73), dtype=np.uint8)
         video_frame[4:-4, 4:-4] = video
-        cls.rounded_panel(canvas, video_x - 5, video_y - 5, video_w + 10, video_h + 10,
+        cls.rounded_panel(canvas, video_x - 5, video_y - 5,
+                          video_w + 10, video_h + 10,
                           (42, 59, 73), radius=16)
         canvas[video_y:video_y + video_h, video_x:video_x + video_w] = video
         cls.put_label(canvas, 'LIVE MONITORING', video_x + 22, video_y + 30,
@@ -1052,15 +1222,43 @@ class BufferedDriverMonitor:
         cv2.circle(canvas, (video_x + 14, video_y + 24), 5, (76, 214, 159), -1)
         cls.put_label(canvas, f'FPS {fps:.1f}', video_x + video_w - 90, video_y + 30,
                       (198, 211, 218), 0.42)
+        alert_panel = render_alert_panel(
+            alert_w,
+            alert_h,
+            behavior,
+            alert_status=alert_text,
+            talking_alert_active=values.get('talking_alert_active', False),
+            talking_episode_count=values.get('talking_episode_count', 0),
+            face_present=values.get('face_present', False),
+        )
+        canvas[alert_y:alert_y + alert_h, alert_x:alert_x + alert_w] = (
+            alert_panel)
+        if values.get('talking_alert_active'):
+            cls.put_label(
+                canvas,
+                f'Talking alert after {TALKING_ALERT_THRESHOLD} episodes',
+                alert_x + 12,
+                alert_y + alert_h - 20,
+                (153, 181, 190),
+                0.32,
+            )
         cls.rounded_panel(canvas, video_x, 754, video_w, 40,
                           (25, 35, 45), border=alert_color, radius=10)
         cls.put_label(
             canvas, f'Alert Status  {alert_text}', video_x + 18, 780, alert_color, 0.43)
         cls.put_label(canvas, f'Frame {packet.frame_id}  |  Results R/B {values["recognition_frame_id"]}/{values["behavior_frame_id"]}',
                       34, 825, (89, 111, 126), 0.38)
-        object_status = 'YOLO ERROR' if values.get('object_detection_error') else (
-            f'YOLO frame {values.get("object_detection_frame_id", -1)}')
-        cls.put_label(canvas, f'Real-time monitoring  |  Face recognition  |  Behavior analysis  |  {object_status}',
+        if values.get('object_detection_error'):
+            object_status = 'YOLO ERROR'
+        elif values.get('object_detection_status') != 'ready':
+            object_status = (
+                f'YOLO {str(values.get("object_detection_status", "waiting")).upper()}')
+        else:
+            object_status = (
+                f'YOLO frame {values.get("object_detection_frame_id", -1)}')
+        phone_state = str(values.get('phone_track_state', 'none')).replace(
+            '_', ' ').upper()
+        cls.put_label(canvas, f'Real-time monitoring  |  Face recognition  |  Behavior analysis  |  {object_status}  |  Phone {phone_state}',
                       video_x, 825, (89, 111, 126), 0.38)
         return canvas
 
@@ -1089,12 +1287,38 @@ def main():
     parser.add_argument('--fatigue-seconds', type=float, default=1.5)
     parser.add_argument('--face-lost-grace', type=float, default=1.0)
     parser.add_argument('--distraction-seconds', type=float, default=0.6)
+    parser.add_argument('--phone-persistence-seconds', type=float, default=0.3)
+    parser.add_argument(
+        '--driver-phone-suspicion-seconds', type=float, default=0.75)
+    parser.add_argument(
+        '--driver-phone-alert-persistence-seconds',
+        type=float,
+        default=0.5,
+    )
+    parser.add_argument('--object-max-missed-frames', type=int, default=2)
+    parser.add_argument('--talking-persistence-seconds', type=float, default=0.35)
+    parser.add_argument('--yawning-persistence-seconds', type=float, default=0.15)
+    parser.add_argument(
+        '--behavior-distraction-persistence-seconds',
+        type=float,
+        default=0.1,
+    )
+    parser.add_argument(
+        '--behavior-clear-persistence-seconds',
+        type=float,
+        default=0.15,
+    )
     parser.add_argument('--telegram-cooldown', type=float, default=60.0)
     parser.add_argument('--yawn-cooldown', type=float, default=10.0)
     parser.add_argument('--database', default=str(PROJECT_PATHS.driver_database))
     parser.add_argument('--emotion-interval', type=float, default=1.0)
     parser.add_argument('--emotion-thresholds',
                         default=str(PROJECT_PATHS.emotion_thresholds))
+    parser.add_argument(
+        '--mute',
+        action='store_true',
+        help='Disable all local beep and voice alerts.',
+    )
     parser.add_argument('--benchmark', action='store_true',
                         help='Print aggregate capture-to-render timing on shutdown.')
     args = parser.parse_args()
@@ -1106,15 +1330,15 @@ def main():
     monitor = BufferedDriverMonitor(args)
     try:
         if not monitor.calibrate_gaze():
-            monitor.stop()
             return
         monitor.start()
         monitor.display()
     except KeyboardInterrupt:
-        monitor.stop()
+        pass
     except Exception as error:
-        monitor.stop()
         raise RuntimeError(f'[MAIN] {error}') from error
+    finally:
+        monitor.stop()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -206,12 +207,35 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                     expected,
                 )
 
+    def test_phone_presence_requires_driver_association_before_safety_alert(self):
+        phone_presence = {
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": False,
+            "gaze_distraction_confirmed": False,
+            "yawn_event": False,
+            "object_detections": [{"class_id": 0}],
+        }
+        self.assertEqual(build_safety_alerts(phone_presence), [])
+        self.assertEqual(
+            build_safety_alerts({
+                **phone_presence,
+                "driver_confirmed": True,
+                "phone_detection_confirmed": True,
+                "driver_phone_alert": True,
+            }),
+            ["POSSIBLE DRIVER PHONE USE"],
+        )
+
     def test_extracted_alert_manager_preserves_priority_and_sanitizes_payload(self):
         worker = Mock()
         manager = AlertManager(worker, cooldown=1.0)
         values = {
             "behavior": "DISTRACTED",
             "face_present": True,
+            "driver_confirmed": True,
+            "phone_detection_confirmed": True,
+            "driver_phone_alert": True,
             "fatigue_alert": False,
             "gaze_distraction_confirmed": True,
             "yawn_event": False,
@@ -222,9 +246,29 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
         manager.update(values, "frame", now=10.0)
         worker.submit.assert_called_once()
         reason, payload, frame = worker.submit.call_args.args
-        self.assertEqual(reason, "MOBILE PHONE DETECTED")
+        self.assertEqual(reason, "POSSIBLE DRIVER PHONE USE")
         self.assertEqual(frame, "frame")
         self.assertFalse(any(key.startswith("emotion") for key in payload))
+
+    def test_bottle_detection_stays_local_and_is_not_sent_to_telegram(self):
+        worker = Mock()
+        manager = AlertManager(worker, cooldown=1.0)
+
+        manager.update(
+            {
+                "behavior": "NORMAL",
+                "face_present": True,
+                "fatigue_alert": False,
+                "gaze_distraction_confirmed": False,
+                "yawn_event": False,
+                "object_detections": [{"class_id": 3}],
+            },
+            "frame",
+            now=10.0,
+        )
+
+        self.assertEqual(manager.last_alert, "BOTTLE DETECTED")
+        worker.submit.assert_not_called()
 
     def test_extracted_telegram_delivery_uses_repository_without_emotion(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -274,6 +318,91 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             self.assertNotIn("emotion", details)
             self.assertEqual(source.Config.BOT_TOKEN, "test-token")
             self.assertEqual(source.Config.CHAT_ID, "test-chat")
+
+    def test_telegram_camera_error_uses_configured_chat(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch.dict(
+                "os.environ",
+                {
+                    "DRIVER_MONITOR_BOT_TOKEN": "test-token",
+                    "DRIVER_MONITOR_CHAT_ID": "test-chat",
+                },
+            ):
+                worker = TelegramWorker(
+                    threading.Event(),
+                    Path(temporary) / "profiles.pkl",
+                    cooldown=60.0,
+                )
+            response = Mock()
+            response.__enter__ = Mock(return_value=response)
+            response.__exit__ = Mock(return_value=False)
+            response.read.return_value = b'{"ok": true}'
+            with patch(
+                "driver_monitor.monitoring.alerts.urlopen",
+                return_value=response,
+            ) as urlopen_mock:
+                worker.send_camera_error("Cannot open camera index 0")
+
+            request = urlopen_mock.call_args.args[0]
+            self.assertIn("bottest-token/sendMessage", request.full_url)
+            self.assertEqual(
+                request.data.decode("utf-8"),
+                "chat_id=test-chat&text=Driver+monitor+camera+error%3A+"
+                "Cannot+open+camera+index+0",
+            )
+
+    def test_telegram_worker_drains_camera_errors_when_stopping(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            stop_event = threading.Event()
+            worker = TelegramWorker(
+                stop_event,
+                Path(temporary) / "profiles.pkl",
+                cooldown=60.0,
+            )
+            worker.submit_camera_error("camera disconnected")
+            stop_event.set()
+            worker.queue.put(None)
+            with patch.object(worker, "send_camera_error") as send_error:
+                worker.run()
+
+        send_error.assert_called_once_with("camera disconnected")
+
+    def test_telegram_sends_anomaly_when_driver_is_unrecognized(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source = SimpleNamespace(
+                Config=SimpleNamespace(BOT_TOKEN="", CHAT_ID=""),
+                send_telegram_alert=Mock(return_value=True),
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DRIVER_MONITOR_BOT_TOKEN": "test-token",
+                    "DRIVER_MONITOR_CHAT_ID": "test-chat",
+                },
+            ):
+                worker = TelegramWorker(
+                    threading.Event(),
+                    Path(temporary) / "profiles.pkl",
+                    cooldown=60.0,
+                    telegram_source=source,
+                )
+            worker.send_alert(
+                "FATIGUE ALERT",
+                {
+                    "driver_name": "UNKNOWN",
+                    "average_ear": 0.1,
+                    "mar": 0.0,
+                    "head_position": "FORWARD",
+                    "pitch": 0.0,
+                    "yaw": 0.0,
+                },
+                "frame",
+            )
+
+        self.assertEqual(
+            source.send_telegram_alert.call_args.args[0],
+            {"full_name": "Unknown driver"},
+        )
 
 
 if __name__ == "__main__":

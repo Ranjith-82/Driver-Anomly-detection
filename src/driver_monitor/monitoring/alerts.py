@@ -1,22 +1,25 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import json
 import os
 import queue
 import threading
 from collections import deque
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 from driver_monitor.profiles.repository import DriverProfileRepository
 
 
 OBJECT_ALERTS = {
-    0: "MOBILE PHONE DETECTED",
+    0: "POSSIBLE DRIVER PHONE USE",
     1: "CIGARETTE DETECTED",
     2: "CUP DETECTED",
     3: "BOTTLE DETECTED",
 }
 OBJECT_ALERT_CONFIG = {
-    0: ("MOBILE PHONE DETECTED", "mobile_phone"),
+    0: ("POSSIBLE DRIVER PHONE USE", "mobile_phone"),
     1: ("CIGARETTE DETECTED", "cigarette"),
     2: ("CUP DETECTED", "cup"),
     3: ("BOTTLE DETECTED", "bottle"),
@@ -52,8 +55,15 @@ def build_safety_alerts(values: Mapping[str, object]) -> list[str]:
             for item in detections
             if isinstance(item, dict)
             and item.get("class_id") in OBJECT_ALERTS
+            and item.get("class_id") != 0
         })
         alerts.extend(OBJECT_ALERTS[class_id] for class_id in class_ids)
+    if (
+        values.get("driver_phone_alert") is True
+        and values.get("driver_confirmed") is True
+        and values.get("phone_detection_confirmed") is True
+    ):
+        alerts.append(OBJECT_ALERTS[0])
     return alerts
 
 
@@ -86,20 +96,62 @@ class TelegramWorker(threading.Thread):
         except queue.Full:
             print("[TELEGRAM] Alert queue full; dropping stale alert")
 
+    def submit_camera_error(self, error: str) -> None:
+        item = ("CAMERA ERROR", {"camera_error": error}, None)
+        try:
+            self.queue.put_nowait(item)
+        except queue.Full:
+            try:
+                self.queue.get_nowait()
+            except queue.Empty:
+                pass
+            else:
+                self.queue.task_done()
+                print("[TELEGRAM] Dropped a queued alert for camera error")
+            try:
+                self.queue.put_nowait(item)
+            except queue.Full:
+                print(
+                    "[TELEGRAM] Alert queue full; camera error notification "
+                    "could not be queued"
+                )
+
     def run(self) -> None:
         print("[TELEGRAM] Worker started")
-        while not self.stop_event.is_set() or not self.queue.empty():
+        while True:
+            item = self.queue.get()
             try:
-                reason, values, frame = self.queue.get(timeout=0.1)
-            except queue.Empty:
-                continue
-            try:
-                self.send_alert(reason, values, frame)
+                if item is None:
+                    break
+                reason, values, frame = item
+                if reason == "CAMERA ERROR":
+                    self.send_camera_error(str(values["camera_error"]))
+                else:
+                    self.send_alert(reason, values, frame)
             except Exception as error:
                 print(f"[TELEGRAM] ERROR: {error}")
             finally:
                 self.queue.task_done()
         print("[TELEGRAM] Worker stopped")
+
+    def send_camera_error(self, error: str) -> None:
+        if not self.bot_token or not self.chat_id:
+            raise RuntimeError(
+                "Telegram credentials are missing. Set DRIVER_MONITOR_BOT_TOKEN "
+                "and DRIVER_MONITOR_CHAT_ID in this PowerShell window."
+            )
+        request = Request(
+            f"https://api.telegram.org/bot{self.bot_token}/sendMessage",
+            data=urlencode({
+                "chat_id": self.chat_id,
+                "text": f"Driver monitor camera error: {error}",
+            }).encode("utf-8"),
+        )
+        with urlopen(request, timeout=5) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        if not result.get("ok"):
+            raise RuntimeError("Telegram rejected the camera error notification")
+        print("[TELEGRAM] Sent camera error notification")
 
     def send_alert(self, reason, values, frame) -> None:
         if self.telegram_source is None:
@@ -130,11 +182,7 @@ class TelegramWorker(threading.Thread):
                 {},
             )
         if not driver_details:
-            if reason in {entry[0] for entry in OBJECT_ALERT_CONFIG.values()}:
-                driver_details = {"full_name": "Unknown driver"}
-            else:
-                print("[TELEGRAM] Skipped: no confirmed driver details")
-                return
+            driver_details = {"full_name": "Unknown driver"}
         details = (
             f'{reason}; EAR={values["average_ear"]}; MAR={values["mar"]}; '
             f'head={values["head_position"]}; pitch={values["pitch"]}; '
@@ -150,7 +198,9 @@ class TelegramWorker(threading.Thread):
 
     def close(self) -> None:
         self.stop_event.set()
-        self.join(timeout=8.0)
+        if self.is_alive():
+            self.queue.put(None)
+            self.join(timeout=8.0)
 
 
 class AlertManager:
@@ -187,7 +237,14 @@ class AlertManager:
             detection["class_id"]
             for detection in values.get("object_detections", [])
             if detection.get("class_id") in OBJECT_ALERT_CONFIG
+            and detection.get("class_id") != 0
         }
+        if (
+            values.get("driver_phone_alert") is True
+            and values.get("driver_confirmed") is True
+            and values.get("phone_detection_confirmed") is True
+        ):
+            detected_object_classes.add(0)
         new_object_classes = detected_object_classes - self.object_classes_active
         for class_id in sorted(new_object_classes):
             alert = OBJECT_ALERT_CONFIG[class_id]
@@ -268,10 +325,13 @@ class AlertManager:
             self.last_alert = reason
             if key == "fatigue":
                 self.fatigue_notification_sent = True
-            self.telegram_worker.submit(
-                reason, notification_values(values), frame
-            )
-            print(f"[ALERT] Alert submitted: {reason}")
+            if reason == "BOTTLE DETECTED":
+                print(f"[ALERT] Local alert only; Telegram disabled: {reason}")
+            else:
+                self.telegram_worker.submit(
+                    reason, notification_values(values), frame
+                )
+                print(f"[ALERT] Alert submitted: {reason}")
         else:
             self.last_alert = f"{reason} (cooldown)"
         return distracted_duration
