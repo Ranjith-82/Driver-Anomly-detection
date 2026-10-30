@@ -58,3 +58,7 @@ class ProjectPaths:
     @property
     def emotion_thresholds(self) -> Path:
         return self.local_data_dir / "emotion-thresholds.json"
+
+    @property
+    def emotion_model_dir(self) -> Path:
+        return self.repository_root / "models" / "emotion_classifier"

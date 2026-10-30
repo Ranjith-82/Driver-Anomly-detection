@@ -5,12 +5,16 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
+from driver_monitor.monitoring.alerts import AlertManager
 from driver_monitor.monitoring.sound import (
     AlertAudioManager,
     AlertAudioWorker,
     DISTRACTION_BEEP_DURATION,
     DISTRACTION_BEEP_FREQUENCY,
     DISTRACTION_MESSAGE,
+    FATIGUE_BEEP_COOLDOWN,
+    FATIGUE_BEEP_DURATION,
+    FATIGUE_BEEP_FREQUENCY,
     FATIGUE_MESSAGE,
     TALKING_ALERT_COOLDOWN,
     YAWN_BEEP_DURATION,
@@ -61,6 +65,119 @@ class AlertAudioSchedulingTests(unittest.TestCase):
         self.manager.update(self.values("FATIGUE ALERT"), 55.0)
         self.assertEqual(self.worker.enqueue_voice.call_count, 2)
 
+    def test_eye_closure_threshold_queues_immediate_beep_without_other_events(self):
+        values = self.values(
+            "NORMAL",
+            fatigue_alert=False,
+            eyes_closed_duration=1.5,
+            yawn_event=False,
+            talking=False,
+            distracted=False,
+            emotion_label="unknown",
+        )
+        self.manager.update(values, 10.0)
+
+        self.worker.enqueue_beeps.assert_called_once_with(
+            "fatigue",
+            FATIGUE_BEEP_FREQUENCY,
+            FATIGUE_BEEP_DURATION,
+            count=1,
+            gap_ms=120,
+            cancel_when_inactive=False,
+        )
+        self.worker.enqueue_voice.assert_called_once_with(
+            "fatigue",
+            FATIGUE_MESSAGE,
+            cancel_when_inactive=True,
+        )
+
+    def test_open_or_below_threshold_eyes_do_not_queue_fatigue_beep(self):
+        for now, duration in ((1.0, 0.0), (2.0, 1.49)):
+            self.manager.update(
+                self.values(
+                    "NORMAL",
+                    fatigue_alert=False,
+                    eyes_closed_duration=duration,
+                ),
+                now,
+            )
+        self.worker.enqueue_beeps.assert_not_called()
+        self.worker.enqueue_voice.assert_not_called()
+
+    def test_fatigue_beep_is_cooldown_limited_and_repeats(self):
+        values = self.values(
+            "NORMAL", fatigue_alert=False, eyes_closed_duration=1.5
+        )
+        self.manager.update(values, 10.0)
+        self.manager.update(values, 10.1)
+        self.assertEqual(self.worker.enqueue_beeps.call_count, 1)
+
+        self.manager.update(values, 10.0 + FATIGUE_BEEP_COOLDOWN - 0.01)
+        self.assertEqual(self.worker.enqueue_beeps.call_count, 1)
+        self.manager.update(values, 10.0 + FATIGUE_BEEP_COOLDOWN)
+        self.assertEqual(self.worker.enqueue_beeps.call_count, 2)
+
+    def test_reclosed_eyes_can_beep_again_after_cooldown(self):
+        closed = self.values(
+            "NORMAL", fatigue_alert=False, eyes_closed_duration=1.5
+        )
+        open_eyes = self.values(
+            "NORMAL", fatigue_alert=False, eyes_closed_duration=0.0
+        )
+        self.manager.update(closed, 10.0)
+        self.manager.update(open_eyes, 11.0)
+        self.manager.update(
+            closed, 10.0 + FATIGUE_BEEP_COOLDOWN
+        )
+        self.assertEqual(self.worker.enqueue_beeps.call_count, 2)
+
+    def test_fatigue_beep_uses_configured_eye_closure_duration(self):
+        manager = AlertAudioManager(self.worker, fatigue_seconds=2.0)
+        manager.update(
+            self.values(
+                "NORMAL",
+                fatigue_alert=False,
+                eyes_closed_duration=1.99,
+            ),
+            1.0,
+        )
+        self.worker.enqueue_beeps.assert_not_called()
+        manager.update(
+            self.values(
+                "NORMAL",
+                fatigue_alert=False,
+                eyes_closed_duration=2.0,
+            ),
+            2.0,
+        )
+        self.worker.enqueue_beeps.assert_called_once_with(
+            "fatigue",
+            FATIGUE_BEEP_FREQUENCY,
+            FATIGUE_BEEP_DURATION,
+            count=1,
+            gap_ms=120,
+            cancel_when_inactive=False,
+        )
+
+    def test_existing_fatigue_telegram_notification_still_requires_three_events(self):
+        telegram = Mock()
+        alerts = AlertManager(telegram)
+        values = {
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": True,
+            "eyes_closed_duration": 1.5,
+            "yawn_event": False,
+            "object_detections": [],
+        }
+        frame = np.zeros((8, 8, 3), dtype=np.uint8)
+        for timestamp in (1.0, 2.0, 3.0):
+            alerts.update(values, frame, timestamp)
+            alerts.update({**values, "fatigue_alert": False}, frame, timestamp + 0.1)
+
+        telegram.submit.assert_called_once()
+        self.assertEqual(telegram.submit.call_args.args[0], "FATIGUE ALERT")
+
     def test_fatigue_takes_priority_over_simultaneous_distraction_state(self):
         self.manager.update(
             self.values(
@@ -75,7 +192,14 @@ class AlertAudioSchedulingTests(unittest.TestCase):
             FATIGUE_MESSAGE,
             cancel_when_inactive=True,
         )
-        self.worker.enqueue_beeps.assert_not_called()
+        self.worker.enqueue_beeps.assert_called_once_with(
+            "fatigue",
+            FATIGUE_BEEP_FREQUENCY,
+            FATIGUE_BEEP_DURATION,
+            count=1,
+            gap_ms=120,
+            cancel_when_inactive=False,
+        )
 
     def test_distraction_waits_for_delay_and_repeats_on_configured_intervals(self):
         for now in (0.0, 1.49):

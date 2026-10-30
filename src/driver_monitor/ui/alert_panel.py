@@ -161,6 +161,22 @@ def _draw_emoji(panel: np.ndarray, emoji: str, size: int) -> bool:
     return True
 
 
+def draw_emoji_at(
+    panel: np.ndarray, emoji: str, x: int, y: int, size: int
+) -> bool:
+    font = _load_emoji_font(size)
+    if font is None or Image is None or ImageDraw is None:
+        return False
+    image = Image.fromarray(cv2.cvtColor(panel, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(image)
+    try:
+        draw.text((x, y), emoji, font=font, embedded_color=True)
+    except (OSError, TypeError, ValueError):
+        return False
+    panel[:] = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    return True
+
+
 def _wrap_text(text: str, width: int, scale: float) -> list[str]:
     lines: list[str] = []
     current = ""

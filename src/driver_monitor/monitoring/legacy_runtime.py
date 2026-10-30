@@ -47,12 +47,14 @@ from driver_monitor.monitoring.temporal import (
     PhoneDetectionValidator,
 )
 from driver_monitor.monitoring.timing import log_timing
-from driver_monitor.monitoring.workers import EmotionWorker
+from driver_monitor.monitoring.workers import SVMEmotionWorker
 from driver_monitor.profiles.repository import DriverProfileRepository
 from driver_monitor.ui.alert_panel import (
     TALKING_ALERT_THRESHOLD,
+    draw_emoji_at,
     render_alert_panel,
 )
+from driver_monitor.ui.live_dashboard import emotion_display, emotion_emoji
 
 try:
     import integrated_driver_system_optimized as telegram_source
@@ -161,8 +163,8 @@ class ResultBuffer:
             'feature_vector': [],
             'feature_names': list(FEATURE_NAMES),
             'face_bounds': None,
-            'emotion_label': 'Uncertain',
-            'emotion_status': 'uncertain',
+            'emotion_label': 'unknown',
+            'emotion_status': 'unknown',
             'emotion_frame_id': -1,
             'emotion_timestamp': 0.0,
             'emotion_error': '',
@@ -738,7 +740,10 @@ class BufferedDriverMonitor:
             yawn_cooldown=args.yawn_cooldown)
         self.alert_audio = AlertAudioWorker(muted=args.mute)
         self.audio_alerts = AlertAudioManager(
-            self.alert_audio, enabled=not args.mute)
+            self.alert_audio,
+            enabled=not args.mute,
+            fatigue_seconds=args.fatigue_seconds,
+        )
         self.object_detection = ObjectDetectionWorker(
             self.frame_buffer, self.result_buffer, self.stop_event,
             YOLO_MODEL_PATH,
@@ -750,12 +755,12 @@ class BufferedDriverMonitor:
             max_missed_frames=args.object_max_missed_frames,
         )
         self.latency_tracker = LatencyTracker(max_samples=20000)
-        self.emotion = EmotionWorker(
+        self.emotion = SVMEmotionWorker(
             self.frame_buffer,
             self.stop_event,
             self.result_buffer.snapshot,
             self.result_buffer.update,
-            args.emotion_thresholds,
+            PROJECT_PATHS.emotion_model_dir,
             interval=args.emotion_interval,
         )
 
@@ -1067,14 +1072,20 @@ class BufferedDriverMonitor:
         cv2.putText(canvas, 'Live behavior, object and expression estimates',
                     (36, 67), cv2.FONT_HERSHEY_SIMPLEX, 0.45,
                     (145, 159, 172), 1, cv2.LINE_AA)
-        emotion_status = str(values.get('emotion_status', 'uncertain')).upper()
-        emotion_label = str(values.get('emotion_label', 'Uncertain'))
+        emotion_label, emotion_status = emotion_display(values)
         cls.rounded_panel(canvas, 785, 13, 355, 66, (22, 31, 42),
                           radius=10, border=(42, 59, 73))
-        cls.put_label(canvas, 'Expression estimate (happy class is a proxy)',
+        cls.put_label(canvas, 'Driver emotion (informational only)',
                       800, 33, (153, 181, 190), 0.38)
-        cls.put_value(canvas, f'{emotion_label}  |  {emotion_status}',
-                      800, 62, (119, 211, 198), 0.55, 1)
+        draw_emoji_at(
+            canvas, emotion_emoji(emotion_label), 800, 39, 25
+        )
+        cls.put_value(
+            canvas, emotion_label.title(), 834, 62, (119, 211, 198), 0.55, 1
+        )
+        cls.put_label(
+            canvas, emotion_status, 980, 61, (153, 181, 190), 0.34
+        )
         emotion_error = str(values.get('emotion_error') or '')
         if emotion_error:
             cls.put_label(canvas, emotion_error[:68], 800, 88,
@@ -1312,8 +1323,6 @@ def main():
     parser.add_argument('--yawn-cooldown', type=float, default=10.0)
     parser.add_argument('--database', default=str(PROJECT_PATHS.driver_database))
     parser.add_argument('--emotion-interval', type=float, default=1.0)
-    parser.add_argument('--emotion-thresholds',
-                        default=str(PROJECT_PATHS.emotion_thresholds))
     parser.add_argument(
         '--mute',
         action='store_true',
@@ -1326,7 +1335,6 @@ def main():
     args.labels = resolve_path(args.labels)
     args.face_landmarker_model = resolve_path(args.face_landmarker_model)
     args.database = resolve_path(args.database)
-    args.emotion_thresholds = resolve_path(args.emotion_thresholds)
     monitor = BufferedDriverMonitor(args)
     try:
         if not monitor.calibrate_gaze():

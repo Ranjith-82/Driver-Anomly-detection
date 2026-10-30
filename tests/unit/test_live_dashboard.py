@@ -1,7 +1,7 @@
 import unittest
 
 from driver_monitor.monitoring.alerts import build_safety_alerts
-from driver_monitor.ui.live_dashboard import emotion_display
+from driver_monitor.ui.live_dashboard import emotion_display, emotion_emoji
 
 
 class LiveDashboardTests(unittest.TestCase):
@@ -27,6 +27,37 @@ class LiveDashboardTests(unittest.TestCase):
             emotion_display({"emotion_status": "stale", "emotion_label": "anger"}),
             ("Uncertain", "stale"),
         )
+
+    def test_displays_supported_svm_labels_with_emojis(self):
+        expected = {
+            "angry": "😠",
+            "confused": "😕",
+            "disgust": "🤢",
+            "fear": "😨",
+            "happy": "😊",
+            "neutral": "😐",
+            "sad": "😢",
+            "shy": "😳",
+            "surprise": "😲",
+        }
+        for label, emoji in expected.items():
+            with self.subTest(label=label):
+                self.assertEqual(
+                    emotion_display({
+                        "emotion_label": label,
+                        "emotion_status": "ready",
+                    }),
+                    (label, "ready"),
+                )
+                self.assertEqual(emotion_emoji(label), emoji)
+        self.assertEqual(
+            emotion_display({
+                "emotion_label": "unknown",
+                "emotion_status": "unknown",
+            }),
+            ("unknown", "unknown"),
+        )
+        self.assertEqual(emotion_emoji("unknown"), "❓")
 
     def test_emotion_unavailability_does_not_hide_safety_alerts(self):
         values = {

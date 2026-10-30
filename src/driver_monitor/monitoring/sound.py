@@ -13,6 +13,9 @@ import wave
 
 
 FATIGUE_ALERT_COOLDOWN = 45.0
+FATIGUE_BEEP_COOLDOWN = 10.0
+FATIGUE_BEEP_FREQUENCY = 1000
+FATIGUE_BEEP_DURATION = 350
 DISTRACTION_ALERT_DELAY = 1.5
 DISTRACTION_BEEP_INTERVAL = 4.0
 DISTRACTION_VOICE_INTERVAL = 4.0
@@ -409,12 +412,15 @@ class AlertAudioManager:
         *,
         enabled: bool = True,
         talking_alert_threshold: int = TALKING_ALERT_THRESHOLD,
+        fatigue_seconds: float = 1.5,
     ) -> None:
         self.worker = worker
         self.enabled = enabled
         self.talking_alert_threshold = talking_alert_threshold
+        self.fatigue_seconds = fatigue_seconds
         self.distraction_started: float | None = None
         self.last_fatigue_voice = -float("inf")
+        self.last_fatigue_beep = -float("inf")
         self.last_distraction_beep = -float("inf")
         self.last_distraction_voice = -float("inf")
         self.last_yawn_alert = -float("inf")
@@ -432,9 +438,17 @@ class AlertAudioManager:
             self.previous_behavior = behavior
 
         face_present = values.get("face_present") is True
+        closed_duration = values.get("eyes_closed_duration")
+        eye_closure_fatigue = (
+            isinstance(closed_duration, (int, float))
+            and not isinstance(closed_duration, bool)
+            and math.isfinite(float(closed_duration))
+            and closed_duration >= self.fatigue_seconds
+        )
         fatigue = face_present and (
             behavior == "FATIGUE ALERT"
             or values.get("fatigue_alert") is True
+            or eye_closure_fatigue
         )
         active_keys: set[str] = set()
         if fatigue:
@@ -465,6 +479,15 @@ class AlertAudioManager:
         self.distraction_condition_active = distraction_condition_met
 
         self.worker.set_active_alerts(active_keys)
+
+        if fatigue and now - self.last_fatigue_beep >= FATIGUE_BEEP_COOLDOWN:
+            self._beep(
+                "fatigue",
+                FATIGUE_BEEP_FREQUENCY,
+                FATIGUE_BEEP_DURATION,
+                cancel_when_inactive=False,
+            )
+            self.last_fatigue_beep = now
 
         if fatigue and now - self.last_fatigue_voice >= FATIGUE_ALERT_COOLDOWN:
             self._voice("fatigue", FATIGUE_MESSAGE)

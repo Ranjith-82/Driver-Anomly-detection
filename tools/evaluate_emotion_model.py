@@ -78,10 +78,12 @@ def validate_partitions(
     min_held_out_identities: int = 10,
 ) -> None:
     normalized = [normalize_row(row) for row in rows]
-    validation = [row for row in normalized if row["partition"] == "validation"]
+    validation = [
+        row for row in normalized if row["partition"] == "validation"]
     held_out = [row for row in normalized if row["partition"] == "held-out"]
     if not validation or not held_out:
-        raise ValueError("Both validation and held-out partitions are required")
+        raise ValueError(
+            "Both validation and held-out partitions are required")
     validation_ids = {row["identity_id"] for row in validation}
     held_out_ids = {row["identity_id"] for row in held_out}
     overlap = validation_ids & held_out_ids
@@ -143,7 +145,8 @@ def select_class_thresholds(
             ]
             if not predicted:
                 continue
-            precision = sum(row["label"] == display_label for row in predicted) / len(predicted)
+            precision = sum(
+                row["label"] == display_label for row in predicted) / len(predicted)
             if precision >= minimum_precision:
                 chosen = cutoff
                 break
@@ -228,7 +231,8 @@ def load_and_score_manifest(path: Path) -> tuple[list[dict[str, Any]], str]:
         required = {"image_path", "identity_id", "partition", "label"}
         missing = required - set(reader.fieldnames or ())
         if missing:
-            raise ValueError(f"Manifest is missing required columns: {sorted(missing)}")
+            raise ValueError(
+                f"Manifest is missing required columns: {sorted(missing)}")
         for line_number, row in enumerate(reader, start=2):
             image_path = Path(row["image_path"])
             if not image_path.is_absolute():
@@ -267,7 +271,8 @@ def build_report(
     model_version: str,
 ) -> tuple[str, dict[str, Any]]:
     normalized = [normalize_row(row) for row in rows]
-    validation = [row for row in normalized if row["partition"] == "validation"]
+    validation = [
+        row for row in normalized if row["partition"] == "validation"]
     held_out = [row for row in normalized if row["partition"] == "held-out"]
     thresholds = select_class_thresholds(validation)
     validation_metrics = evaluate_partition(validation, thresholds)
@@ -358,7 +363,8 @@ def build_report(
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Evaluate DeepFace emotion scores.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate DeepFace emotion scores.")
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--thresholds-output", type=Path)
@@ -370,7 +376,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     report, policy = build_report(rows, args.dataset_provenance, model_version)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(report, encoding="utf-8")
-    thresholds_path = args.thresholds_output or args.output.with_suffix(".thresholds.json")
+    thresholds_path = args.thresholds_output or args.output.with_suffix(
+        ".thresholds.json")
     thresholds_path.parent.mkdir(parents=True, exist_ok=True)
     thresholds_path.write_text(
         json.dumps(policy, indent=2, sort_keys=True) + "\n",

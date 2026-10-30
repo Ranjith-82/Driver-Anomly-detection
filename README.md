@@ -10,12 +10,13 @@ packaged buffered runtime is used by both the new entry point and the Phase 3 co
 launcher. The monitor continues to use one camera feed and the existing recognition,
 behavior/gaze, YOLO, and alert behavior.
 
-Emotion is informational only. DeepFace's `happy` class is shown as
-`smiling (estimated from happy)`, not as a direct smile measurement or a claim about internal
-emotional state. Labels are disabled and reported as `Uncertain` until a versioned,
-identity-separated evaluation produces a policy that passes the 0.75 precision gate on both
-validation and held-out data. Emotion does not affect safety alerts, behavior-model inputs,
-profiles, notifications, or logs, and is cleared when the live session stops.
+Emotion is informational only. The packaged SVM predicts one of
+`angry, confused, disgust, fear, happy, neutral, sad, shy, surprise`; it is shown separately
+from safety alerts and is never treated as a calibrated confidence or as proof of a driver's
+internal emotional state. The independent worker requires the existing driver-recognition
+result and a fresh face region associated with that driver; otherwise it displays `unknown`.
+Emotion does not affect safety alerts, behavior-model inputs, profiles, notifications, or logs,
+and is cleared when the live session stops.
 
 ## Setup
 

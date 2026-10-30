@@ -24,6 +24,7 @@ emotion = [
     "deepface==0.0.93",
     "tensorflow==2.18.0",
     "tf-keras==2.18.0",
+    "pandas",
 ]
 recognition = ["face-recognition==1.3.0"]
 test = []

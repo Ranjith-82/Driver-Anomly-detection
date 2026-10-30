@@ -86,9 +86,10 @@ fails, retain the complete CMake/compiler error and verify the VS C++ workload a
 is the VS Developer PowerShell; do not install arbitrary third-party dlib wheels or silently
 skip the dependency.
 
-The emotion extra installs TensorFlow and DeepFace. A successful package install or mocked unit
-test does not demonstrate camera compatibility, driver recognition, GPU support, or real-time
-performance; verify these on the actual reference PC.
+The SVM emotion path uses the existing monitor dependencies plus pandas. The `emotion` extra
+also retains TensorFlow and DeepFace for the legacy adapter and evaluation tooling. A successful
+package install or mocked unit test does not demonstrate camera compatibility, driver recognition,
+GPU support, or real-time performance; verify these on the actual reference PC.
 The combined extras are not yet release-validated: DeepFace and its `retina-face` dependency
 request OpenCV distributions that overlap the monitor's contrib build. Resolve that packaging
 overlap and verify `cv2`/MediaPipe imports in a clean Python 3.11 environment before treating the
@@ -100,7 +101,7 @@ combined installation as supported.
 |---|---|
 | Package entry point and configuration | `src/driver_monitor/` |
 | Canonical behavior, object, and face-landmarker artifacts | `models/behavior/`, `models/objects/`, and `models/face_landmarker/` |
-| Emotion mapping and DeepFace adapter | `src/driver_monitor/detection/emotion.py` |
+| Emotion SVM adapter and original 68-feature extractor | `src/driver_monitor/detection/svm_emotion.py` and `models/emotion_classifier/` |
 | Buffered live camera, workers, and alerts | `src/driver_monitor/monitoring/legacy_runtime.py` |
 | Existing facial behavior algorithm source | `Phase-2/Face_monitoring_system/`, invoked through `src/driver_monitor/detection/behavior.py` |
 | Gaze algorithm source | `Phase-3/Buffered-system/buffered_system/Buffer/Buffered_system/`, invoked through `src/driver_monitor/detection/gaze.py` |
@@ -117,17 +118,17 @@ launcher.
 
 ## Model and output policy
 
-The emotion adapter requests only DeepFace emotion analysis and crops the face region identified
-by the existing face-landmark worker. It is an independent sampled worker; it cannot block the
-camera or other detectors. The adapter does not save crops, scores, or histories. A result is
-shown only when its class-specific threshold policy exists and both validation and identity-
-disjoint held-out precision are at least 0.75. Missing policy, non-target labels, invalid results,
-or below-threshold scores display `Uncertain`; missing faces and worker failures have separate
-visible statuses.
+The packaged SVM (`models/emotion_classifier/best_emotion_model.pkl`) uses the unchanged
+`extract_features_v2.py` pipeline and `feature_names.pkl` order. Its independent worker samples
+the latest shared frame at `--emotion-interval` (one second by default), requires the existing
+confirmed driver identity, and only processes a fresh behavior face region that overlaps the
+driver's recognized face location. It loads the model once, does not persist crops or predictions,
+and publishes `unknown` when the driver or matching face region is unavailable. The dashboard
+shows all nine model labels separately from the safety-alert panel, without displaying SVM
+decision scores or treating them as calibrated confidence.
 
-The `happy` output is a proxy displayed as `smiling (estimated from happy)`. It is not a dedicated
-smile detector, calibrated probability, or inference about a driver's internal mental state.
-Emotion never enters the behavior-model feature vector or safety-alert rules.
+Emotion never enters the behavior-model feature vector or safety-alert rules. Predictions are
+informational only and are not claims about a driver's internal emotional state.
 
 The live application uses the existing driver database if it is present at
 `Phase-2/Face_recognition_system/drivers_database.pkl`; otherwise it uses
@@ -140,7 +141,10 @@ The existing database uses Python pickle. Treat it as trusted local data only; d
 database from an unknown source. Never commit driver database files, photos, evaluation images,
 or session output. The root `.gitignore` excludes local profile and evaluation paths.
 
-## Emotion evaluation
+## Legacy DeepFace emotion evaluation
+
+The following evaluation command and threshold policy apply only to the retained DeepFace adapter;
+they do not gate or evaluate the packaged SVM model.
 
 Use only a versioned, appropriately licensed dataset with documented provenance and consent
 status. Keep images and the identity-bearing manifest outside version control. The manifest uses
@@ -173,7 +177,8 @@ dropped frames, and CPU/GPU use in the validation report after a real run.
 
 Regression tests must include normal driving, partial occlusion, low light, and false-alert
 prevention. Mocked tests do not replace controlled/replay-camera testing on the reference setup.
-Do not enable emotion classes before the evaluation gate passes. Usability acceptance requires
+Evaluate the SVM with identity-disjoint data before relying on its predictions. Emotion is
+informational only and must never drive safety alerts. Usability acceptance requires
 10 first-time non-technical participants, with at least 9/10 unaided temporary profile tasks and
 8/10 correct interpretations of status, emotion/uncertainty, and alerts. Avoid collecting
 participant photos or identifiers.
@@ -181,6 +186,6 @@ participant photos or identifiers.
 ## Current validation limits
 
 Automated unit and mocked integration tests do not run a physical camera, the proprietary
-driver-behavior model, YOLO weights, DeepFace/TensorFlow inference, participant usability study,
-or the licensed held-out evaluation data. These checks remain release prerequisites and must not
-be reported as passed until performed and documented.
+driver-behavior model, YOLO weights, SVM/MediaPipe inference on live camera frames, participant
+usability study, or the licensed held-out evaluation data. These checks remain release prerequisites
+and must not be reported as passed until performed and documented.
