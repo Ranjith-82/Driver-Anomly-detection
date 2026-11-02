@@ -1,0 +1,1 @@
+"""Independent detection adapters."""
