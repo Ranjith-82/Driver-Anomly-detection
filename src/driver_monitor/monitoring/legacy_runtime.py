@@ -103,6 +103,21 @@ def resolve_path(value):
     return path if path.is_absolute() else SCRIPT_DIR / path
 
 
+def dashboard_alert_status(alert_status, detections):
+    if alert_status != 'NONE':
+        return alert_status
+
+    detected_classes = {
+        detection.get('class_id')
+        for detection in detections
+        if isinstance(detection, dict)
+        and detection.get('class_id') in OBJECT_DETECTION_ALERTS
+    }
+    if detected_classes:
+        return OBJECT_DETECTION_ALERTS[min(detected_classes)][0]
+    return alert_status
+
+
 class ResultBuffer:
     """Merged latest results; each worker updates only its own namespace."""
 
@@ -1237,7 +1252,9 @@ class BufferedDriverMonitor:
             alert_w,
             alert_h,
             behavior,
-            alert_status=alert_text,
+            alert_status=dashboard_alert_status(
+                alert_text, values.get('object_detections', [])
+            ),
             talking_alert_active=values.get('talking_alert_active', False),
             talking_episode_count=values.get('talking_episode_count', 0),
             face_present=values.get('face_present', False),
