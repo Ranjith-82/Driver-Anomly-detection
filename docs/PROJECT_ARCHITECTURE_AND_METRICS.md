@@ -53,7 +53,9 @@ flowchart LR
    otherwise the local database under `data/local` is used.
 3. Gaze calibration captures five directions (`FORWARD`, `LEFT`, `RIGHT`,
    `UP`, `DOWN`). The camera, gaze landmark detector, Telegram worker, and YOLO
-   initialization can already be active during calibration.
+   initialization can already be active during calibration. Instructions stay
+   in a panel to the left of the camera preview; click a completed direction
+   to retake that sample without losing the pending calibration step.
 4. After calibration, recognition, behavior, object, SVM-emotion, audio, and
    display work proceed concurrently. Each vision worker requests the newest
    frame instead of building a queue of old frames.

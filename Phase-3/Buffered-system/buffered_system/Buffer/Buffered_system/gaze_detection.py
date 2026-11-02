@@ -267,6 +267,7 @@ class CalibrationSession:
         self.observations: Dict[str, GazePosition] = {}
         self.retry_message = ""
         self.captured = False
+        self._retake_resume: Optional[Tuple[int, bool]] = None
 
     @property
     def complete(self) -> bool:
@@ -278,12 +279,32 @@ class CalibrationSession:
 
     def start_capture(self, now: float) -> None:
         if self.captured:
-            self.index += 1
-            self.captured = False
+            if self._retake_resume is not None:
+                self.index, self.captured = self._retake_resume
+                self._retake_resume = None
+            else:
+                self.index += 1
+                self.captured = False
         elif not self.complete and self.capture_started is None:
             self.capture_started = now
             self.samples.clear()
             self.retry_message = ""
+
+    def retake(self, direction: str) -> bool:
+        """Repeat one captured direction and restore the pending step afterward."""
+        if self.capture_started is not None or direction not in self.observations:
+            return False
+
+        direction_index = GAZE_DIRECTIONS.index(direction)
+        if direction_index != self.index:
+            self._retake_resume = (self.index, self.captured)
+            self.index = direction_index
+        else:
+            self._retake_resume = None
+        self.captured = False
+        self.samples.clear()
+        self.retry_message = ""
+        return True
 
     def update(self, now: float, position: Optional[GazePosition]) -> None:
         if self.capture_started is None or self.complete:
