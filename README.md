@@ -62,6 +62,21 @@ Run deterministic checks without a camera or real driver records:
 python -m unittest discover -s tests -v
 ```
 
+Test the [Phase 2 behavior script](Phase-2/Face_monitoring_system/train_and_run_driver_detector.py)
+on one image (run from the repository root):
+
+```powershell
+python .\Phase-2\Face_monitoring_system\train_and_run_driver_detector.py `
+  --image ".\Phase-2\Face_monitoring_system\yawning_pre\sample2.jpg" `
+  --output ".\yawning_prediction.jpg"
+```
+
+The script loads its model and labels from its own Phase 2 folder, so this command works from
+the repository root without extra model arguments. It prints the predicted class and saves an
+annotated image. This standalone command does not change or launch the desktop dashboard. A
+single frame cannot confirm time-based behaviors such as yawning or fatigue; omit `--output`
+if you only need the console result.
+
 See [docs/driver-monitoring-setup.md](docs/driver-monitoring-setup.md) for configuration,
 evaluation, privacy boundaries, and migration notes.
 

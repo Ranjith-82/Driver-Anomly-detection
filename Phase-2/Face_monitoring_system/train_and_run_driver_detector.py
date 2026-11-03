@@ -43,6 +43,7 @@ MOUTH_LANDMARKS = (61, 291, 13, 14)
 LEFT_EYE_LANDMARKS = (33, 160, 158, 133, 153, 144)
 RIGHT_EYE_LANDMARKS = (362, 385, 387, 263, 373, 380)
 FEATURE_VERSION = 'landmarks_xy_plus_relative_pnp_angles_v2'
+SCRIPT_DIR = Path(__file__).resolve().parent
 # Observed webcam convention: positive yaw is physical right and positive
 # pitch is physical up. Keep these mappings explicit and easy to recalibrate.
 POSITIVE_YAW_LABEL = 'LOOKING RIGHT'
@@ -52,11 +53,11 @@ NEGATIVE_PITCH_LABEL = 'LOOKING DOWN'
 
 
 class FaceLandmarkDetector:
-    def __init__(self, model_path=None):
+    def __init__(self, model_path=None, static_image_mode=False):
         """Initialize face landmark detector using MediaPipe solutions API."""
         self.mode = 'solutions'
         self.handle = mp.solutions.face_mesh.FaceMesh(
-            static_image_mode=False,
+            static_image_mode=static_image_mode,
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.6,
@@ -464,6 +465,65 @@ def stable_ml_label(classifier, encoder, vector, history, confidence):
     return Counter(history).most_common(1)[0][0], probability
 
 
+def load_classifier(model_path, labels_path):
+    with open(model_path, 'rb') as file:
+        classifier = pickle.load(file)
+    with open(labels_path, 'rb') as file:
+        encoder = pickle.load(file)
+    if not hasattr(classifier, 'n_features_in_'):
+        raise ValueError(
+            'Saved classifier metadata is missing. Retrain with --mode train.')
+    return classifier, encoder
+
+
+def predict_image(image_path, model_path, labels_path, output_path=None):
+    classifier, encoder = load_classifier(model_path, labels_path)
+    image_path = Path(image_path)
+    image = cv2.imread(str(image_path))
+    if image is None:
+        raise ValueError(f'Could not read image: {image_path}')
+
+    detector = FaceLandmarkDetector(static_image_mode=True)
+    try:
+        landmarks = detector.extract(image)
+    finally:
+        detector.close()
+    if landmarks is None:
+        raise ValueError(f'No face detected in image: {image_path}')
+
+    vector = feature_vector(landmarks, image.shape[1], image.shape[0])
+    if vector is None:
+        raise ValueError(f'Could not estimate head pose in image: {image_path}')
+    if vector.size != classifier.n_features_in_:
+        raise ValueError(
+            f'Image produced {vector.size} features, but the model expects '
+            f'{classifier.n_features_in_}. Retrain the model with this script.')
+
+    scores = classifier.predict_proba([vector])[0]
+    index = int(np.argmax(scores))
+    label = str(encoder.inverse_transform([index])[0])
+    score = float(scores[index])
+    print(f'Image: {image_path}')
+    print(f'Model prediction: {label}')
+    print(f'Class score: {score:.3f} (not calibrated)')
+    print('Note: A single image cannot confirm time-based behaviors such as yawning or fatigue.')
+
+    if output_path is not None:
+        height, width = image.shape[:2]
+        points = landmarks[:, :2]
+        x1 = max(0, int(np.floor(points[:, 0].min() * width)))
+        y1 = max(0, int(np.floor(points[:, 1].min() * height)))
+        x2 = min(width - 1, int(np.ceil(points[:, 0].max() * width)))
+        y2 = min(height - 1, int(np.ceil(points[:, 1].max() * height)))
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 220, 255), 2)
+        cv2.putText(
+            image, f'{label} ({score:.2f})', (14, 30),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 220, 255), 2)
+        if not cv2.imwrite(str(output_path), image):
+            raise OSError(f'Could not save annotated image: {output_path}')
+        print(f'Annotated image: {output_path}')
+
+
 def draw_text(frame, lines):
     y = 28
     for text, color, scale in lines:
@@ -475,13 +535,7 @@ def draw_text(frame, lines):
 def live(model_path, labels_path, face_model, camera, confidence, pose_yaw, pose_pitch,
          mar_threshold, eye_close_threshold, eye_open_threshold,
          fatigue_seconds, debug, width, height):
-    with open(model_path, 'rb') as file:
-        classifier = pickle.load(file)
-    with open(labels_path, 'rb') as file:
-        encoder = pickle.load(file)
-    if not hasattr(classifier, 'n_features_in_'):
-        raise ValueError(
-            'Saved classifier metadata is missing. Retrain with --mode train.')
+    classifier, encoder = load_classifier(model_path, labels_path)
     detector = FaceLandmarkDetector()
     pose_estimator = HeadPoseEstimator()
     mouth = MouthAnalyzer(mar_threshold=mar_threshold)
@@ -636,9 +690,15 @@ def main():
     parser.add_argument('--mode', choices=('train', 'live'), default='live')
     parser.add_argument('--data-root', default='.',
                         help='Driver_pr folder containing the four class folders')
-    parser.add_argument('--model', default='driver_behavior_model.pkl')
-    parser.add_argument('--labels', default='driver_behavior_labels.pkl')
+    parser.add_argument('--model', default=SCRIPT_DIR / 'driver_behavior_model.pkl',
+                        help='Classifier pickle (defaults to the model beside this script)')
+    parser.add_argument('--labels', default=SCRIPT_DIR / 'driver_behavior_labels.pkl',
+                        help='Label encoder pickle (defaults to the file beside this script)')
     parser.add_argument('--metrics', default='driver_behavior_metrics.json')
+    parser.add_argument('--image',
+                        help='Run one-frame behavior inference on this image instead of opening the camera')
+    parser.add_argument('--output',
+                        help='Optional path to save the annotated result; requires --image')
     parser.add_argument('--face-landmarker-model',
                         default='face_landmarker.task')
     parser.add_argument('--max-images-per-class', type=int, default=1000,
@@ -658,6 +718,13 @@ def main():
                         help='Project fatigue alert threshold for continuous eye closure')
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
+    if args.output and not args.image:
+        parser.error('--output requires --image')
+    if args.image and args.mode == 'train':
+        parser.error('--image cannot be used with --mode train')
+    if args.image:
+        predict_image(args.image, args.model, args.labels, args.output)
+        return
     if args.mode == 'train':
         train(args.data_root, args.model, args.labels, args.metrics,
               args.face_landmarker_model, args.max_images_per_class)

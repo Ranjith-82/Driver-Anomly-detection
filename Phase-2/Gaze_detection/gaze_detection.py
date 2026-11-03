@@ -1,11 +1,13 @@
 """Standalone webcam-based eye gaze detection using MediaPipe Face Mesh."""
 
 import argparse
+import json
 import os
 import platform
 import time
 from collections import Counter, deque
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Deque, Dict, List, Optional, Sequence, Tuple
 
 import cv2
@@ -229,6 +231,68 @@ def calibrate_gaze_thresholds(
         up_is_lower=up_is_lower,
         down_is_lower=down_is_lower,
     )
+
+
+def load_calibration(path: Path) -> Dict[str, GazePosition]:
+    """Load and validate a saved five-direction calibration profile."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError("Could not read calibration file {}: {}".format(
+            path, error
+        )) from error
+
+    observations = payload.get("observations") if isinstance(payload, dict) else None
+    if (
+        not isinstance(payload, dict)
+        or payload.get("schema") != "gaze-calibration-v1"
+        or not isinstance(observations, dict)
+        or set(observations) != set(GAZE_DIRECTIONS)
+    ):
+        raise ValueError(
+            "Calibration must use schema gaze-calibration-v1 and include "
+            "FORWARD, LEFT, RIGHT, UP, and DOWN observations."
+        )
+
+    parsed = {}
+    for direction in GAZE_DIRECTIONS:
+        value = observations[direction]
+        if not isinstance(value, dict):
+            raise ValueError(
+                "Calibration observation {} must contain x and y.".format(
+                    direction
+                )
+            )
+        try:
+            x = float(value["x"])
+            y = float(value["y"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(
+                "Calibration observation {} must contain numeric x and y."
+                .format(direction)
+            ) from error
+        if not np.isfinite((x, y)).all():
+            raise ValueError(
+                "Calibration observation {} must have finite gaze "
+                "coordinates.".format(direction)
+            )
+        parsed[direction] = GazePosition(x=x, y=y)
+    return parsed
+
+
+def save_calibration(path: Path, observations: Dict[str, GazePosition]) -> None:
+    """Write calibration observations as a reusable JSON profile."""
+    payload = {
+        "schema": "gaze-calibration-v1",
+        "observations": {
+            direction: {
+                "x": observations[direction].x,
+                "y": observations[direction].y,
+            }
+            for direction in GAZE_DIRECTIONS
+        },
+    }
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def classify_gaze(position: GazePosition, thresholds: GazeThresholds) -> str:
@@ -489,6 +553,7 @@ def run(
     distraction_seconds: float,
     model_path: Optional[str],
     debug: bool = False,
+    save_calibration_path: Optional[Path] = None,
 ) -> None:
     camera = initialize_camera(camera_index)
     if not camera.isOpened():
@@ -550,6 +615,15 @@ def run(
                 if thresholds is None:
                     thresholds = calibrate_gaze_thresholds(
                         calibration.observations)
+                    if save_calibration_path is not None:
+                        save_calibration(
+                            save_calibration_path, calibration.observations
+                        )
+                        print(
+                            "Calibration saved: {}".format(
+                                save_calibration_path
+                            )
+                        )
                     print(
                         "Calibration values (normalized gaze coordinates):"
                     )
@@ -605,12 +679,60 @@ def run(
         cv2.destroyAllWindows()
 
 
+def run_image(
+    image_path: Path,
+    calibration_path: Path,
+    model_path: Optional[str],
+) -> None:
+    """Classify gaze in one image using a saved personalized calibration."""
+    image = cv2.imread(str(image_path))
+    if image is None:
+        raise ValueError("Could not read image: {}".format(image_path))
+
+    observations = load_calibration(calibration_path)
+    thresholds = calibrate_gaze_thresholds(observations)
+    detector = initialize_mediapipe(model_path)
+    try:
+        # Match the webcam's mirrored preview so LEFT/RIGHT stay consistent.
+        image = cv2.flip(image, 1)
+        height, width = image.shape[:2]
+        landmarks = extract_face_landmarks(image, detector)
+        eye_landmarks = (
+            extract_eye_landmarks(landmarks, width, height)
+            if landmarks is not None else None
+        )
+        position = calculate_gaze_position(eye_landmarks) if eye_landmarks else None
+        print("Image: {}".format(image_path))
+        if position is None:
+            print("Gaze could not be determined (no face or usable eye landmarks).")
+            return
+        print("Gaze: {}".format(classify_gaze(position, thresholds)))
+        print("Normalized gaze coordinates: X={:.3f}, Y={:.3f}".format(
+            position.x, position.y
+        ))
+    finally:
+        _, handle = detector
+        handle.close()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Standalone real-time driver eye gaze detection"
+        description="Driver eye gaze detection from a webcam or one image"
     )
     parser.add_argument("--camera", type=int, default=0,
                         help="Webcam device index")
+    parser.add_argument(
+        "--image", type=Path,
+        help="Classify gaze in one image instead of opening the webcam",
+    )
+    parser.add_argument(
+        "--calibration", type=Path,
+        help="Saved personalized calibration JSON (required with --image)",
+    )
+    parser.add_argument(
+        "--save-calibration", type=Path,
+        help="Save the completed webcam calibration to this JSON file",
+    )
     parser.add_argument(
         "--distraction-seconds", type=float, default=GAZE_DISTRACTION_SECONDS,
         help="Seconds of sustained non-forward gaze before raising an alert",
@@ -626,10 +748,23 @@ def main() -> None:
     args = parser.parse_args()
     if args.distraction_seconds <= 0:
         parser.error("--distraction-seconds must be greater than zero")
+    if args.image is not None and args.calibration is None:
+        parser.error("--image requires --calibration with a saved profile")
+    if args.image is None and args.calibration is not None:
+        parser.error("--calibration can only be used together with --image")
 
     try:
-        run(args.camera, args.distraction_seconds, args.model_path, args.debug)
-    except RuntimeError as error:
+        if args.image is not None:
+            run_image(args.image, args.calibration, args.model_path)
+        else:
+            run(
+                args.camera,
+                args.distraction_seconds,
+                args.model_path,
+                args.debug,
+                args.save_calibration,
+            )
+    except (OSError, RuntimeError, ValueError) as error:
         parser.exit(1, "ERROR: {}\n".format(error))
 
 

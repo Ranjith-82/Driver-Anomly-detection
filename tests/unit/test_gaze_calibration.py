@@ -1,11 +1,13 @@
 import sys
+import tempfile
 from types import ModuleType
 import unittest
+from pathlib import Path
 
 import cv2
 import numpy as np
 
-from driver_monitor.legacy import load_gaze_module
+from driver_monitor.legacy import load_gaze_module, load_legacy_module
 from driver_monitor.monitoring.legacy_runtime import (
     GAZE_CALIBRATION_PANEL_WIDTH,
     draw_gaze_calibration_screen,
@@ -24,6 +26,15 @@ class GazeCalibrationTests(unittest.TestCase):
             if needs_mediapipe_stub:
                 del sys.modules["mediapipe"]
         self.session = self.module.CalibrationSession()
+        standalone_path = (
+            Path(__file__).resolve().parents[2]
+            / "Phase-2"
+            / "Gaze_detection"
+            / "gaze_detection.py"
+        )
+        self.standalone_module = load_legacy_module(
+            "standalone_gaze_test", standalone_path
+        )
 
     def _capture(self, x, y, start):
         self.session.start_capture(start)
@@ -71,6 +82,28 @@ class GazeCalibrationTests(unittest.TestCase):
         self.assertFalse(self.session.retake("FORWARD"))
         self.session.start_capture(0.0)
         self.assertFalse(self.session.retake("FORWARD"))
+
+    def test_saved_calibration_round_trips_for_image_inference(self):
+        observations = {
+            "FORWARD": self.standalone_module.GazePosition(0.5, -0.05),
+            "LEFT": self.standalone_module.GazePosition(0.3, -0.05),
+            "RIGHT": self.standalone_module.GazePosition(0.7, -0.05),
+            "UP": self.standalone_module.GazePosition(0.5, -0.2),
+            "DOWN": self.standalone_module.GazePosition(0.5, 0.1),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "gaze-calibration.json"
+            self.standalone_module.save_calibration(path, observations)
+            loaded = self.standalone_module.load_calibration(path)
+
+        self.assertEqual(loaded, observations)
+        thresholds = self.standalone_module.calibrate_gaze_thresholds(loaded)
+        self.assertEqual(
+            self.standalone_module.classify_gaze(
+                self.standalone_module.GazePosition(0.1, -0.05), thresholds
+            ),
+            "LEFT",
+        )
 
     def test_calibration_screen_keeps_text_panel_and_video_side_by_side(self):
         frame = np.full((480, 640, 3), 255, dtype=np.uint8)
