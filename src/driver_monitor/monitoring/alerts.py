@@ -212,18 +212,12 @@ class AlertManager:
         cooldown: float = 60.0,
         distraction_delay: float = 0.5,
         yawn_cooldown: float = 10.0,
-        fatigue_events: int = 3,
-        fatigue_window: float = 60.0,
     ) -> None:
         self.telegram_worker = telegram_worker
         self.cooldown = cooldown
         self.distraction_delay = distraction_delay
         self.yawn_cooldown = yawn_cooldown
-        self.fatigue_events_required = fatigue_events
-        self.fatigue_window = fatigue_window
-        self.fatigue_event_times = deque()
         self.fatigue_active = False
-        self.fatigue_notification_sent = False
         self.last_sent = {}
         self.distraction_started = None
         self.gaze_distraction_alerted = False
@@ -259,23 +253,11 @@ class AlertManager:
             and (behavior == "FATIGUE ALERT" or values["fatigue_alert"])
         )
         if fatigue_detected and not self.fatigue_active:
-            self.fatigue_event_times.append(now)
-            self.fatigue_active = True
             print(
-                f"[ALERT] Fatigue event detected at {now:.2f}. "
-                f"Total events: {len(self.fatigue_event_times)}"
+                f"[ALERT] Fatigue detected at {now:.2f}; "
+                "Telegram notification is eligible immediately"
             )
-        elif not fatigue_detected:
-            self.fatigue_active = False
-
-        fatigue_cutoff = now - self.fatigue_window
-        while (
-            self.fatigue_event_times
-            and self.fatigue_event_times[0] < fatigue_cutoff
-        ):
-            self.fatigue_event_times.popleft()
-        if not self.fatigue_event_times:
-            self.fatigue_notification_sent = False
+        self.fatigue_active = fatigue_detected
 
         if behavior == "DISTRACTED":
             if self.distraction_started is None:
@@ -294,13 +276,14 @@ class AlertManager:
 
         reason = None
         key = None
-        if self.pending_object_alerts:
-            reason, key = self.pending_object_alerts.popleft()
-        elif (
-            len(self.fatigue_event_times) >= self.fatigue_events_required
-            and not self.fatigue_notification_sent
+        if (
+            fatigue_detected
+            and now - self.last_sent.get("fatigue", -float("inf"))
+            >= self.cooldown
         ):
             reason, key = "FATIGUE ALERT", "fatigue"
+        elif self.pending_object_alerts:
+            reason, key = self.pending_object_alerts.popleft()
         elif gaze_distraction and not self.gaze_distraction_alerted:
             reason = (
                 "WARNING: DRIVER DISTRACTION DETECTED. "
@@ -323,8 +306,6 @@ class AlertManager:
         ):
             self.last_sent[key] = now
             self.last_alert = reason
-            if key == "fatigue":
-                self.fatigue_notification_sent = True
             if reason == "BOTTLE DETECTED":
                 print(f"[ALERT] Local alert only; Telegram disabled: {reason}")
             else:

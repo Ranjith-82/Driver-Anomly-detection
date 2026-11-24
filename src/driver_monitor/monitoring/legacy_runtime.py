@@ -96,6 +96,110 @@ OBJECT_DETECTION_ALERTS = {
     2: ('CUP DETECTED', 'cup'),
     3: ('BOTTLE DETECTED', 'bottle'),
 }
+GAZE_CALIBRATION_PANEL_WIDTH = 430
+GAZE_CALIBRATION_RETAKE_TOP = 264
+GAZE_CALIBRATION_RETAKE_HEIGHT = 34
+GAZE_CALIBRATION_RETAKE_GAP = 7
+
+
+def draw_gaze_calibration_screen(frame, calibration, position, now):
+    """Render instructions and retake controls beside, not over, the camera."""
+    height, width = frame.shape[:2]
+    directions = gaze_detection.calibration_directions()
+    screen = np.zeros(
+        (height, GAZE_CALIBRATION_PANEL_WIDTH + width, 3), dtype=frame.dtype
+    )
+    screen[:, :GAZE_CALIBRATION_PANEL_WIDTH] = (18, 25, 30)
+    screen[:, GAZE_CALIBRATION_PANEL_WIDTH:] = frame
+    left = 22
+    cv2.putText(
+        screen, 'GAZE CALIBRATION', (left, 38), cv2.FONT_HERSHEY_DUPLEX,
+        0.75, (106, 222, 202), 2, cv2.LINE_AA,
+    )
+    step = min(calibration.index + 1, len(directions))
+    cv2.putText(
+        screen, 'STEP {}/{}'.format(step, len(directions)),
+        (left, 72), cv2.FONT_HERSHEY_DUPLEX, 0.56, (185, 205, 210), 1,
+        cv2.LINE_AA,
+    )
+    direction = calibration.current_direction or 'COMPLETE'
+    instruction = 'LOOK STRAIGHT' if direction == 'FORWARD' else 'LOOK ' + direction
+    cv2.putText(
+        screen, instruction, (left, 112), cv2.FONT_HERSHEY_DUPLEX, 0.88,
+        (100, 210, 255), 2, cv2.LINE_AA,
+    )
+    status = (
+        'Face and eyes detected' if position is not None
+        else 'Face/eyes not detected - center your face'
+    )
+    cv2.putText(
+        screen, status, (left, 148), cv2.FONT_HERSHEY_SIMPLEX, 0.43,
+        (150, 225, 180) if position is not None else (80, 100, 255), 1,
+        cv2.LINE_AA,
+    )
+
+    if calibration.captured:
+        message = 'Captured. Retake a sample or press SPACE to continue.'
+    elif calibration.capture_started is not None:
+        remaining = max(
+            0.0, gaze_detection.calibration_capture_seconds()
+            - (now - calibration.capture_started)
+        )
+        message = 'Collecting gaze samples: {:.1f}s'.format(remaining)
+    elif calibration.retry_message:
+        message = calibration.retry_message
+    else:
+        message = 'Hold gaze steady, then press SPACE to capture.'
+    cv2.putText(
+        screen, message, (left, 184), cv2.FONT_HERSHEY_SIMPLEX, 0.41,
+        (220, 230, 226), 1, cv2.LINE_AA,
+    )
+
+    for index, sample_direction in enumerate(directions):
+        top = (
+            GAZE_CALIBRATION_RETAKE_TOP
+            + index * (
+                GAZE_CALIBRATION_RETAKE_HEIGHT + GAZE_CALIBRATION_RETAKE_GAP
+            )
+        )
+        enabled = (
+            sample_direction in calibration.observations
+            and calibration.capture_started is None
+        )
+        cv2.rectangle(
+            screen, (left, top), (GAZE_CALIBRATION_PANEL_WIDTH - 22,
+                                  top + GAZE_CALIBRATION_RETAKE_HEIGHT),
+            (48, 86, 74) if enabled else (38, 44, 47), -1,
+        )
+        label = (
+            'RETAKE ' + sample_direction if enabled
+            else sample_direction + ' - NOT CAPTURED'
+        )
+        cv2.putText(
+            screen, label, (left + 10, top + 23), cv2.FONT_HERSHEY_DUPLEX,
+            0.43, (210, 240, 225) if enabled else (145, 155, 155), 1,
+            cv2.LINE_AA,
+        )
+    cv2.putText(
+        screen, 'Click a completed direction to retake its sample.',
+        (left, height - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.36,
+        (185, 205, 210), 1, cv2.LINE_AA,
+    )
+    return screen
+
+
+def handle_gaze_calibration_click(event, x, y, _flags, calibration):
+    if event != cv2.EVENT_LBUTTONDOWN:
+        return
+    if x < 22 or x >= GAZE_CALIBRATION_PANEL_WIDTH - 22:
+        return
+    row_height = GAZE_CALIBRATION_RETAKE_HEIGHT + GAZE_CALIBRATION_RETAKE_GAP
+    index = (y - GAZE_CALIBRATION_RETAKE_TOP) // row_height
+    directions = gaze_detection.calibration_directions()
+    if 0 <= index < len(directions):
+        top = GAZE_CALIBRATION_RETAKE_TOP + index * row_height
+        if y <= top + GAZE_CALIBRATION_RETAKE_HEIGHT:
+            calibration.retake(directions[index])
 
 
 def resolve_path(value):
@@ -802,6 +906,12 @@ class BufferedDriverMonitor:
         )
         calibration = gaze_detection.create_calibration_session()
         last_frame_id = -1
+        window_name = 'AI Driver Safety Monitor - Gaze Calibration'
+        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+        cv2.setMouseCallback(
+            window_name, handle_gaze_calibration_click, calibration
+        )
+        window_resized = False
 
         while not calibration.complete and not self.stop_event.is_set():
             packet = self.frame_buffer.get_newest(
@@ -817,64 +927,24 @@ class BufferedDriverMonitor:
             now = time.monotonic()
             calibration.update(now, position)
 
-            screen = packet.frame.copy()
-            direction = calibration.current_direction or 'COMPLETE'
-            instruction = (
-                'LOOK STRAIGHT' if direction == 'FORWARD'
-                else 'LOOK ' + direction
+            screen = draw_gaze_calibration_screen(
+                packet.frame, calibration, position, now
             )
-            cv2.rectangle(screen, (12, 12), (650, 190), (18, 25, 30), -1)
-            cv2.putText(
-                screen,
-                'GAZE CALIBRATION - STEP {}/5'.format(
-                    min(calibration.index + 1, len(
-                        gaze_detection.calibration_directions()))
-                ),
-                (28, 48), cv2.FONT_HERSHEY_DUPLEX, 0.75,
-                (106, 222, 202), 2, cv2.LINE_AA,
-            )
-            cv2.putText(
-                screen, instruction, (28, 91), cv2.FONT_HERSHEY_DUPLEX,
-                0.9, (100, 210, 255), 2, cv2.LINE_AA,
-            )
-            if position is None:
-                status = 'Face/eyes not detected - center your face in camera'
-                color = (80, 100, 255)
-            else:
-                status = 'Face and eyes detected'
-                color = (150, 225, 180)
-            cv2.putText(
-                screen, status, (28, 128), cv2.FONT_HERSHEY_SIMPLEX,
-                0.55, color, 1, cv2.LINE_AA,
-            )
-            if calibration.captured:
-                if calibration.current_direction == 'DOWN':
-                    message = 'Final gaze samples captured. Starting monitoring.'
-                else:
-                    message = 'Samples captured. Press SPACE for next direction.'
-            elif calibration.capture_started is not None:
-                remaining = max(
-                    0.0, gaze_detection.calibration_capture_seconds()
-                    - (now - calibration.capture_started)
+            if not window_resized:
+                cv2.resizeWindow(
+                    window_name, screen.shape[1], screen.shape[0]
                 )
-                message = 'Hold gaze steady - collecting samples ({:.1f}s)'.format(
-                    remaining)
-            elif calibration.retry_message:
-                message = calibration.retry_message
-            elif position is not None:
-                message = 'Hold gaze steady, then press SPACE to capture.'
-            else:
-                message = 'Face/eyes must be detected before capture.'
-            cv2.putText(
-                screen, message, (28, 164), cv2.FONT_HERSHEY_SIMPLEX,
-                0.52, (220, 230, 226), 1, cv2.LINE_AA,
-            )
-            cv2.imshow('AI Driver Safety Monitor - Gaze Calibration', screen)
+                window_resized = True
+            cv2.imshow(window_name, screen)
             key = cv2.waitKey(1) & 0xFF
             if key in (ord('q'), 27):
                 self.stop_event.set()
                 cv2.destroyAllWindows()
                 return False
+            if key in (ord('r'), ord('R')):
+                direction = calibration.current_direction
+                if direction is not None:
+                    calibration.retake(direction)
             if key == 32:
                 if calibration.captured:
                     calibration.start_capture(now)

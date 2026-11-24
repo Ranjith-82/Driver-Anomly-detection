@@ -159,7 +159,7 @@ class AlertAudioSchedulingTests(unittest.TestCase):
             cancel_when_inactive=False,
         )
 
-    def test_existing_fatigue_telegram_notification_still_requires_three_events(self):
+    def test_fatigue_telegram_sends_immediately_and_repeats_after_cooldown(self):
         telegram = Mock()
         alerts = AlertManager(telegram)
         values = {
@@ -171,11 +171,16 @@ class AlertAudioSchedulingTests(unittest.TestCase):
             "object_detections": [],
         }
         frame = np.zeros((8, 8, 3), dtype=np.uint8)
-        for timestamp in (1.0, 2.0, 3.0):
-            alerts.update(values, frame, timestamp)
-            alerts.update({**values, "fatigue_alert": False}, frame, timestamp + 0.1)
 
+        alerts.update(values, frame, 1.0)
         telegram.submit.assert_called_once()
+        self.assertEqual(telegram.submit.call_args.args[0], "FATIGUE ALERT")
+
+        alerts.update(values, frame, 60.99)
+        self.assertEqual(telegram.submit.call_count, 1)
+
+        alerts.update(values, frame, 61.0)
+        self.assertEqual(telegram.submit.call_count, 2)
         self.assertEqual(telegram.submit.call_args.args[0], "FATIGUE ALERT")
 
     def test_fatigue_takes_priority_over_simultaneous_distraction_state(self):

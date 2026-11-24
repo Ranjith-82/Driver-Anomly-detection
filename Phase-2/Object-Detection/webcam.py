@@ -1,4 +1,5 @@
 
+import argparse
 import cv2
 import time
 import torch
@@ -64,6 +65,16 @@ HEADER_HEIGHT = 70
 FOOTER_HEIGHT = 42
 
 WINDOW_NAME = "Driver Behaviour | Object Detection"
+
+parser = argparse.ArgumentParser(
+    description="Detect objects from the webcam or a single image."
+)
+parser.add_argument(
+    "--image",
+    type=Path,
+    help="Run object detection on this image instead of opening the webcam.",
+)
+args = parser.parse_args()
 
 # ============================================================
 # DRAWING HELPERS
@@ -465,6 +476,54 @@ if not all(
     raise ValueError(
         f"Unexpected model classes: {model.names}"
     )
+
+if args.image is not None:
+    if not args.image.is_file():
+        parser.error(f"Image file does not exist: {args.image}")
+
+    image = cv2.imread(str(args.image))
+    if image is None:
+        parser.error(f"Could not read image: {args.image}")
+
+    result = model.predict(
+        source=image,
+        imgsz=IMAGE_SIZE,
+        conf=BASE_CONFIDENCE,
+        iou=IOU_THRESHOLD,
+        device=device,
+        half=use_gpu,
+        max_det=MAX_DETECTIONS,
+        verbose=False,
+    )[0]
+
+    detections = []
+    if result.boxes is not None:
+        for box in result.boxes:
+            class_id = int(box.cls[0].item())
+            confidence = float(box.conf[0].item())
+
+            if (
+                class_id not in CLASS_NAMES
+                or confidence < CLASS_CONFIDENCE[class_id]
+            ):
+                continue
+
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            box_area = max(0, x2 - x1) * max(0, y2 - y1)
+            frame_area = image.shape[0] * image.shape[1]
+            if box_area > 0.85 * frame_area:
+                continue
+
+            detections.append((CLASS_NAMES[class_id], confidence))
+
+    print(f"Image: {args.image}")
+    if detections:
+        print("Detected objects:")
+        for name, confidence in detections:
+            print(f"- {name} (confidence: {confidence:.2f})")
+    else:
+        print("No supported objects detected.")
+    raise SystemExit(0)
 
 
 # ============================================================

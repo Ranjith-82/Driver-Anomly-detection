@@ -18,6 +18,9 @@
 
   Keep the token private; do not commit it to the repository. Credentials are read from the
   current process environment and are not saved by the application.
+- Fatigue notifications are queued on the first detected fatigue alert and, if it remains
+  active, can repeat no more often than once per minute by default. The shared alert cooldown
+  is configurable with `--telegram-cooldown`.
 - YOLO model loading begins on a separate worker while gaze calibration runs. Timestamped
   `[TIMING]` messages distinguish camera readiness/first frame, calibration, PyTorch and
   Ultralytics imports, model construction/class validation/device selection, first inference,
