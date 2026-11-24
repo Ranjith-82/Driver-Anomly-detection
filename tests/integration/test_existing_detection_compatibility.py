@@ -13,6 +13,10 @@ from driver_monitor.monitoring.alerts import (
     build_safety_alerts,
     notification_values,
 )
+from driver_monitor.monitoring.legacy_runtime import (
+    OBJECT_DETECTION_CLASS_CONFIDENCE,
+    dashboard_alert_status,
+)
 from driver_monitor.profiles.model import DriverProfile
 from driver_monitor.detection.objects import OBJECT_CLASSES, YoloObjectDetector
 from driver_monitor.detection.recognition import (
@@ -53,6 +57,59 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                 3: "Book",
             })
 
+    def test_raw_object_detections_do_not_trigger_alert_or_dashboard_status(self):
+        worker = Mock()
+        manager = AlertManager(worker, cooldown=1.0)
+        raw_detections = [
+            {"class_id": 1, "confirmed": False},
+            {"class_id": 2, "confirmed": False},
+            {"class_id": 3, "confirmed": False},
+            {"class_id": 0, "confirmed": False},
+        ]
+        manager.update({
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": False,
+            "raw_object_detections": raw_detections,
+        }, "frame", now=1.0)
+
+        self.assertEqual(manager.last_alert, "NONE")
+        worker.submit.assert_not_called()
+        self.assertEqual(build_safety_alerts({
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": False,
+            "raw_object_detections": raw_detections,
+        }), [])
+        self.assertEqual(
+            dashboard_alert_status("NONE", raw_detections),
+            "NONE",
+        )
+        self.assertEqual(
+            dashboard_alert_status(
+                "NONE",
+                [{"class_id": 0, "confirmed": True}],
+            ),
+            "NONE",
+        )
+        self.assertEqual(
+            dashboard_alert_status(
+                "NONE",
+                [{"class_id": 1, "confirmed": True}],
+            ),
+            "CIGARETTE DETECTED",
+        )
+        self.assertEqual(
+            dashboard_alert_status(
+                "NONE",
+                [],
+                driver_phone_alert=True,
+                driver_confirmed=True,
+                phone_detection_confirmed=True,
+            ),
+            "POSSIBLE DRIVER PHONE USE",
+        )
+
     def test_yolo_adapter_preserves_live_worker_thresholds_and_box_filter(self):
         detector = object.__new__(YoloObjectDetector)
         detector._torch = SimpleNamespace(
@@ -66,13 +123,28 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             ),
             SimpleNamespace(
                 cls=[SimpleNamespace(item=lambda: 1)],
-                conf=[SimpleNamespace(item=lambda: 0.49)],
+                conf=[SimpleNamespace(item=lambda: 0.74)],
+                xyxy=[SimpleNamespace(tolist=lambda: [5, 5, 25, 25])],
+            ),
+            SimpleNamespace(
+                cls=[SimpleNamespace(item=lambda: 1)],
+                conf=[SimpleNamespace(item=lambda: 0.75)],
                 xyxy=[SimpleNamespace(tolist=lambda: [5, 5, 25, 25])],
             ),
             SimpleNamespace(
                 cls=[SimpleNamespace(item=lambda: 2)],
                 conf=[SimpleNamespace(item=lambda: 0.5)],
                 xyxy=[SimpleNamespace(tolist=lambda: [0, 0, 100, 100])],
+            ),
+            SimpleNamespace(
+                cls=[SimpleNamespace(item=lambda: 2)],
+                conf=[SimpleNamespace(item=lambda: 0.54)],
+                xyxy=[SimpleNamespace(tolist=lambda: [5, 5, 25, 25])],
+            ),
+            SimpleNamespace(
+                cls=[SimpleNamespace(item=lambda: 2)],
+                conf=[SimpleNamespace(item=lambda: 0.55)],
+                xyxy=[SimpleNamespace(tolist=lambda: [5, 5, 25, 25])],
             ),
         ]
         detector._model = SimpleNamespace(
@@ -85,18 +157,32 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             confidence=0.1,
             iou=0.45,
             max_detections=20,
-            class_confidence={0: 0.2, 1: 0.5, 2: 0.35},
+            class_confidence=OBJECT_DETECTION_CLASS_CONFIDENCE,
             max_box_fraction=0.85,
         )
 
         self.assertEqual(
             detections,
-            [{
-                "class_id": 0,
-                "name": "Phone",
-                "confidence": 0.25,
-                "box": (5, 5, 25, 25),
-            }],
+            [
+                {
+                    "class_id": 0,
+                    "name": "Phone",
+                    "confidence": 0.25,
+                    "box": (5, 5, 25, 25),
+                },
+                {
+                    "class_id": 1,
+                    "name": "Cigarette",
+                    "confidence": 0.75,
+                    "box": (5, 5, 25, 25),
+                },
+                {
+                    "class_id": 2,
+                    "name": "Cup",
+                    "confidence": 0.55,
+                    "box": (5, 5, 25, 25),
+                },
+            ],
         )
         detector._model.predict.assert_called_once()
         self.assertEqual(
@@ -154,7 +240,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             "fatigue_alert": False,
             "gaze_distraction_confirmed": False,
             "yawn_event": False,
-            "object_detections": [],
+            "raw_object_detections": [],
             "emotion": "anger",
         }
         self.assertEqual(build_safety_alerts(values), [])
@@ -181,7 +267,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                 "fatigue_alert": False,
                 "gaze_distraction_confirmed": False,
                 "yawn_event": False,
-                "object_detections": [],
+                "raw_object_detections": [],
                 "emotion": "Uncertain",
             }
             self.assertEqual(build_safety_alerts(values), [])
@@ -202,7 +288,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                         "fatigue_alert": False,
                         "gaze_distraction_confirmed": False,
                         "yawn_event": False,
-                        "object_detections": [],
+                        "raw_object_detections": [],
                     }),
                     expected,
                 )
@@ -214,7 +300,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             "fatigue_alert": False,
             "gaze_distraction_confirmed": False,
             "yawn_event": False,
-            "object_detections": [{"class_id": 0}],
+            "raw_object_detections": [{"class_id": 0}],
         }
         self.assertEqual(build_safety_alerts(phone_presence), [])
         self.assertEqual(
@@ -239,7 +325,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
             "fatigue_alert": False,
             "gaze_distraction_confirmed": True,
             "yawn_event": False,
-            "object_detections": [{"class_id": 0}],
+            "raw_object_detections": [{"class_id": 0}],
             "emotion_label": "anger",
             "emotion_status": "ready",
         }
@@ -249,6 +335,153 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
         self.assertEqual(reason, "POSSIBLE DRIVER PHONE USE")
         self.assertEqual(frame, "frame")
         self.assertFalse(any(key.startswith("emotion") for key in payload))
+
+    def test_alert_manager_sends_simultaneous_alerts_in_priority_order(self):
+        worker = Mock()
+        manager = AlertManager(
+            worker,
+            cooldown=10.0,
+            distraction_delay=0.0,
+        )
+        values = {
+            "behavior": "DISTRACTED",
+            "face_present": True,
+            "driver_confirmed": True,
+            "phone_detection_confirmed": True,
+            "driver_phone_alert": True,
+            "fatigue_alert": False,
+            "gaze_distraction_confirmed": True,
+            "yawn_event": True,
+            "raw_object_detections": [
+                {"class_id": class_id} for class_id in (0, 1, 2, 3)
+            ],
+            "confirmed_object_detections": [
+                {"class_id": class_id, "confirmed": True}
+                for class_id in (1, 2, 3)
+            ],
+        }
+        expected = [
+            "POSSIBLE DRIVER PHONE USE",
+            "BOTTLE DETECTED",
+            "WARNING: DRIVER DISTRACTION DETECTED. "
+            "PLEASE LOOK AT THE ROAD.",
+            "YAWNING DETECTED",
+            "CIGARETTE DETECTED",
+            "CUP DETECTED",
+        ]
+
+        for index, expected_alert in enumerate(expected):
+            with self.subTest(priority=index):
+                manager.update(values, "frame", now=10.0 + index)
+                self.assertEqual(manager.last_alert, expected_alert)
+
+        self.assertEqual(
+            [call.args[0] for call in worker.submit.call_args_list],
+            [
+                "POSSIBLE DRIVER PHONE USE",
+                "WARNING: DRIVER DISTRACTION DETECTED. "
+                "PLEASE LOOK AT THE ROAD.",
+                "YAWNING DETECTED",
+                "CIGARETTE DETECTED",
+                "CUP DETECTED",
+            ],
+        )
+
+    def test_fatigue_notification_keeps_its_existing_cooldown(self):
+        worker = Mock()
+        manager = AlertManager(worker, cooldown=5.0)
+        values = {
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": True,
+            "yawn_event": False,
+            "raw_object_detections": [],
+        }
+
+        manager.update(values, "frame", now=0.0)
+        manager.update(values, "frame", now=4.99)
+        self.assertEqual(worker.submit.call_count, 1)
+        manager.update(values, "frame", now=5.0)
+
+        self.assertEqual(
+            [call.args[0] for call in worker.submit.call_args_list],
+            ["FATIGUE ALERT", "FATIGUE ALERT"],
+        )
+
+    def test_pending_alert_waits_for_cooldown_without_repeating_active_alert(self):
+        worker = Mock()
+        manager = AlertManager(worker, cooldown=5.0)
+        bottle = {
+            "behavior": "NORMAL",
+            "face_present": True,
+            "fatigue_alert": False,
+            "gaze_distraction_confirmed": False,
+            "yawn_event": False,
+            "confirmed_object_detections": [
+                {"class_id": 3, "confirmed": True}
+            ],
+        }
+        manager.update(bottle, "frame", now=0.0)
+        self.assertEqual(manager.last_alert, "BOTTLE DETECTED")
+        manager.update({
+            **bottle,
+            "confirmed_object_detections": [],
+        }, "frame", now=1.0)
+
+        waiting = {
+            **bottle,
+            "gaze_distraction_confirmed": True,
+        }
+        manager.update(waiting, "frame", now=2.0)
+        self.assertEqual(
+            manager.last_alert,
+            "WARNING: DRIVER DISTRACTION DETECTED. "
+            "PLEASE LOOK AT THE ROAD.",
+        )
+        manager.update(waiting, "frame", now=3.0)
+        self.assertEqual(manager.last_alert, "BOTTLE DETECTED (cooldown)")
+        manager.update(waiting, "frame", now=5.0)
+        self.assertEqual(manager.last_alert, "BOTTLE DETECTED")
+        manager.update(waiting, "frame", now=6.0)
+        self.assertEqual(manager.last_alert, "NONE")
+        self.assertEqual(
+            [call.args[0] for call in worker.submit.call_args_list],
+            [
+                "WARNING: DRIVER DISTRACTION DETECTED. "
+                "PLEASE LOOK AT THE ROAD.",
+            ],
+        )
+
+    def test_safety_alert_list_uses_priority_and_keeps_distractions_separate(self):
+        self.assertEqual(
+            build_safety_alerts({
+                "behavior": "DISTRACTED",
+                "face_present": True,
+                "fatigue_alert": True,
+                "driver_confirmed": True,
+                "phone_detection_confirmed": True,
+                "driver_phone_alert": True,
+                "gaze_distraction_confirmed": True,
+                "yawn_event": True,
+                "raw_object_detections": [
+                    {"class_id": class_id} for class_id in (1, 2, 3)
+                ],
+                "confirmed_object_detections": [
+                    {"class_id": class_id, "confirmed": True}
+                    for class_id in (1, 2, 3)
+                ],
+            }),
+            [
+                "FATIGUE ALERT",
+                "POSSIBLE DRIVER PHONE USE",
+                "BOTTLE DETECTED",
+                "DRIVER DISTRACTION DETECTED",
+                "DRIVER DISTRACTED",
+                "YAWNING DETECTED",
+                "CIGARETTE DETECTED",
+                "CUP DETECTED",
+            ],
+        )
 
     def test_bottle_detection_stays_local_and_is_not_sent_to_telegram(self):
         worker = Mock()
@@ -261,7 +494,9 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                 "fatigue_alert": False,
                 "gaze_distraction_confirmed": False,
                 "yawn_event": False,
-                "object_detections": [{"class_id": 3}],
+                "confirmed_object_detections": [
+                    {"class_id": 3, "confirmed": True}
+                ],
             },
             "frame",
             now=10.0,
@@ -304,18 +539,21 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
                 "DRIVER DISTRACTED",
                 {
                     "driver_name": "Test Driver",
+                    "driver_confirmed": True,
                     "average_ear": 0.2,
                     "mar": 0.1,
                     "head_position": "FORWARD",
                     "pitch": 0.0,
                     "yaw": 0.0,
+                    "phone": "5550100",
                     "emotion_label": "anger",
                 },
                 "frame",
             )
             sent_profile, details, _ = source.send_telegram_alert.call_args.args
-            self.assertEqual(sent_profile["phone"], "5550100")
+            self.assertEqual(sent_profile, {"full_name": "Test Driver"})
             self.assertNotIn("emotion", details)
+            self.assertNotIn("5550100", details)
             self.assertEqual(source.Config.BOT_TOKEN, "test-token")
             self.assertEqual(source.Config.CHAT_ID, "test-chat")
 
@@ -401,7 +639,7 @@ class ExistingDetectionCompatibilityTests(unittest.TestCase):
 
         self.assertEqual(
             source.send_telegram_alert.call_args.args[0],
-            {"full_name": "Unknown driver"},
+            {},
         )
 
 

@@ -26,7 +26,10 @@ class ProjectPathTests(unittest.TestCase):
             )
             self.assertEqual(
                 paths.object_model,
-                root / "models" / "objects" / "best_phone_finetuned_v1.pt",
+                Path(
+                    r"C:\Users\HP\Downloads\yolov8\runs\driver_objects"
+                    r"\balanced_hardneg_gpu_v1\weights\best.pt"
+                ),
             )
             self.assertEqual(paths.driver_database, root / "data" / "local"
                              / "drivers_database.pkl")
@@ -53,7 +56,8 @@ class ProjectPathTests(unittest.TestCase):
                 / "face_landmarker.task",
             ),
             (
-                paths.object_model,
+                paths.repository_root / "models" / "objects"
+                / "best_phone_finetuned_v1.pt",
                 paths.repository_root / "Phase-3" / "Buffered-system"
                 / "buffered_system" / "Buffer" / "Buffered_system"
                 / "best_phone_finetuned_v1.pt",

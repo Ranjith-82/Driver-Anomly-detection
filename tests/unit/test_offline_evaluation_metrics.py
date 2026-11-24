@@ -11,6 +11,7 @@ from evaluation.common.inputs import (
     verify_independent_split,
 )
 from evaluation.common.metrics import classification_metrics, regression_metrics
+from evaluation.common.evaluators import _event_matches
 
 
 class OfflineEvaluationMetricTests(unittest.TestCase):
@@ -78,7 +79,7 @@ class OfflineEvaluationMetricTests(unittest.TestCase):
     def test_fatigue_event_matching_rejects_empty_positive_intervals(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            settings, model_hash = self._fatigue_fixture(root)
+            settings, _ = self._fatigue_fixture(root)
             event_file = root / "events.csv"
             event_file.write_text(
                 "clip_id,identity_id,sha256,model_sha256,source,start_seconds,end_seconds\n"
@@ -97,20 +98,69 @@ class OfflineEvaluationMetricTests(unittest.TestCase):
                 "clip_id,identity_id,sha256,model_sha256,source,start_seconds,end_seconds\n"
                 f"clip-1,test-1,{'a' * 64},,ground_truth,1,3\n"
                 f"clip-1,test-1,{'a' * 64},{model_hash},prediction,1.2,3.2\n"
+                f"clip-1,test-1,{'a' * 64},{model_hash},prediction,1.3,2.9\n"
                 f"clip-2,test-2,{'b' * 64},,ground_truth,4,5\n"
                 f"clip-3,test-3,{'c' * 64},{model_hash},prediction,1,2\n"
+                f"clip-3,test-3,{'c' * 64},,negative_clip,,\n"
                 f"clip-4,test-4,{'d' * 64},,negative_clip,,\n",
                 encoding="utf-8",
             )
             report, matched = evaluate_fatigue_events(root, settings)
             metrics = report["metrics"]
             self.assertEqual(metrics["true_positive"], 1)
-            self.assertEqual(metrics["true_negative"], 1)
-            self.assertEqual(metrics["false_positive"], 1)
+            self.assertEqual(metrics["false_positive"], 2)
             self.assertEqual(metrics["false_negative"], 1)
             self.assertEqual(metrics["missed_event_count"], 1)
             self.assertAlmostEqual(metrics["mean_detection_delay_seconds"], 0.2)
-            self.assertEqual(len(matched), 3)
+            self.assertEqual(metrics["clip_level"]["true_negative"], 1)
+            self.assertEqual(metrics["clip_level"]["false_positive"], 1)
+            self.assertEqual(len(matched), 4)
+
+    def test_fatigue_event_timestamps_must_fit_known_clip_duration(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            settings, _ = self._fatigue_fixture(root)
+            (root / "events.csv").write_text(
+                "clip_id,identity_id,sha256,model_sha256,source,start_seconds,"
+                "end_seconds,clip_duration_seconds\n"
+                f"clip-1,test-1,{'a' * 64},,ground_truth,1,3,2\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(EvaluationInputError, "clip.*duration"):
+                evaluate_fatigue_events(root, settings)
+
+    def test_event_matching_maximizes_one_to_one_temporal_overlaps(self):
+        truths = [
+            {"start_seconds": 0.0, "end_seconds": 10.0},
+            {"start_seconds": 5.0, "end_seconds": 15.0},
+        ]
+        predictions = [
+            {"start_seconds": 3.0, "end_seconds": 7.0},
+            {"start_seconds": 0.0, "end_seconds": 4.0},
+        ]
+        matches = _event_matches(truths, predictions)
+        self.assertEqual(len(matches), 2)
+        self.assertEqual(len(set(matches.values())), 2)
+
+    def test_fatigue_event_requires_prediction_model_hash(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            settings, _ = self._fatigue_fixture(root)
+            (root / "events.csv").write_text(
+                "clip_id,identity_id,sha256,model_sha256,source,start_seconds,end_seconds\n"
+                f"clip-1,test-1,{'a' * 64},,prediction,1,2\n"
+                f"clip-1,test-1,{'a' * 64},,negative_clip,,\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(EvaluationInputError, "model hash"):
+                evaluate_fatigue_events(root, settings)
+
+    def test_fatigue_event_reports_missing_manifest(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            settings, _ = self._fatigue_fixture(root)
+            with self.assertRaisesRegex(EvaluationInputError, "Event manifest"):
+                evaluate_fatigue_events(root, settings)
 
     @staticmethod
     def _fatigue_fixture(root):

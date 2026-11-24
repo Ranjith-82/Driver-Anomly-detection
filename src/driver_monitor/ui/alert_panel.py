@@ -99,8 +99,9 @@ class TalkingAlertTracker:
 
 def _content_key(behavior: str, alert_status: str, talking_alert_active: bool,
                  face_present: bool) -> str:
-    status = alert_status.removesuffix(" (cooldown)").upper()
-    if status != "NONE":
+    status = alert_status.upper()
+    cooldown_status = status.endswith(" (COOLDOWN)")
+    if status != "NONE" and not cooldown_status:
         if "FATIGUE" in status:
             return "FATIGUE"
         if "DISTRACT" in status:

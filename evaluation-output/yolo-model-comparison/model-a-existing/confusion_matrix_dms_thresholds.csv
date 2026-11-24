@@ -1,0 +1,6 @@
+actual/predicted,Phone,Cigarette,Cup,Bottle,background
+Phone,96,0,0,0,284
+Cigarette,0,0,0,0,94
+Cup,2,0,202,1,210
+Bottle,9,0,1,197,35
+background,139,2,35,34,0

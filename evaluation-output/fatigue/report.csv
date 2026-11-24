@@ -1,0 +1,8 @@
+metric,value
+task,fatigue
+status,pending_data
+dataset,C:\Users\HP\OneDrive\Documents\Driver-Anomly-friend\data\evaluator\fatigue-labels.csv
+sample_counts.processed_frames,0
+sample_counts.evaluated_frames,0
+metrics,
+interpretation,No fatigue score is reported until valid labeled clips or an independent event manifest and test-split metadata are available.

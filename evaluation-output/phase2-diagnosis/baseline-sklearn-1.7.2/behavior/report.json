@@ -1,0 +1,3028 @@
+{
+  "task": "behavior",
+  "status": "evaluated",
+  "dataset": "video interval annotations",
+  "videos": [
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver1.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver2.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver3.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver4.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver5.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver6.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver7.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver8.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver9.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver11.avi",
+    "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\data\\evaluator\\driver12.avi"
+  ],
+  "prediction_rows": 24762,
+  "sample_counts": {
+    "processed_frames": 24762,
+    "labelled_frames": 23381,
+    "evaluated_frames": 22194,
+    "excluded_frames": 2568
+  },
+  "excluded_samples": {
+    "unlabelled": 1381,
+    "calibration": 556,
+    "face_not_detected": 61,
+    "unclassified": 570
+  },
+  "metrics": {
+    "samples": 22194,
+    "accuracy": 0.548436514373254,
+    "precision": 0.489457897112652,
+    "recall": 0.42013766897790183,
+    "macro_precision": 0.489457897112652,
+    "macro_recall": 0.42013766897790183,
+    "macro_f1": 0.4252883150524235,
+    "weighted_precision": 0.4951767520892508,
+    "weighted_recall": 0.548436514373254,
+    "weighted_f1": 0.4928800819575056,
+    "actual_class_counts": {
+      "NORMAL": 11521,
+      "YAWNING": 2737,
+      "DISTRACTED": 2982,
+      "TALKING": 4954
+    },
+    "predicted_class_counts": {
+      "NORMAL": 16699,
+      "YAWNING": 1637,
+      "DISTRACTED": 2704,
+      "TALKING": 1154
+    },
+    "confusion_matrix": {
+      "NORMAL": {
+        "NORMAL": 9709,
+        "YAWNING": 117,
+        "DISTRACTED": 989,
+        "TALKING": 706
+      },
+      "YAWNING": {
+        "NORMAL": 973,
+        "YAWNING": 1445,
+        "DISTRACTED": 270,
+        "TALKING": 49
+      },
+      "DISTRACTED": {
+        "NORMAL": 1983,
+        "YAWNING": 54,
+        "DISTRACTED": 782,
+        "TALKING": 163
+      },
+      "TALKING": {
+        "NORMAL": 4034,
+        "YAWNING": 21,
+        "DISTRACTED": 663,
+        "TALKING": 236
+      }
+    },
+    "per_class": {
+      "NORMAL": {
+        "true_positive": 9709,
+        "false_positive": 6990,
+        "true_negative": 3683,
+        "false_negative": 1812,
+        "precision": 0.5814120606024313,
+        "recall": 0.8427219859387206,
+        "f1": 0.6880935506732815,
+        "false_positive_rate": 0.6549236390892907,
+        "false_negative_rate": 0.1572780140612794,
+        "actual_count": 11521,
+        "predicted_count": 16699,
+        "support": 11521
+      },
+      "YAWNING": {
+        "true_positive": 1445,
+        "false_positive": 192,
+        "true_negative": 19265,
+        "false_negative": 1292,
+        "precision": 0.8827122785583384,
+        "recall": 0.5279503105590062,
+        "f1": 0.6607224508459076,
+        "false_positive_rate": 0.009867913861335252,
+        "false_negative_rate": 0.4720496894409938,
+        "actual_count": 2737,
+        "predicted_count": 1637,
+        "support": 2737
+      },
+      "DISTRACTED": {
+        "true_positive": 782,
+        "false_positive": 1922,
+        "true_negative": 17290,
+        "false_negative": 2200,
+        "precision": 0.28920118343195267,
+        "recall": 0.2622401073105298,
+        "f1": 0.27506155469574395,
+        "false_positive_rate": 0.10004164064126587,
+        "false_negative_rate": 0.7377598926894702,
+        "actual_count": 2982,
+        "predicted_count": 2704,
+        "support": 2982
+      },
+      "TALKING": {
+        "true_positive": 236,
+        "false_positive": 918,
+        "true_negative": 16322,
+        "false_negative": 4718,
+        "precision": 0.2045060658578856,
+        "recall": 0.04763827210335083,
+        "f1": 0.07727570399476098,
+        "false_positive_rate": 0.05324825986078886,
+        "false_negative_rate": 0.9523617278966492,
+        "actual_count": 4954,
+        "predicted_count": 1154,
+        "support": 4954
+      }
+    },
+    "macro_false_positive_rate": 0.20452036336317017,
+    "macro_false_negative_rate": 0.579862331022098,
+    "classes": [
+      "NORMAL",
+      "YAWNING",
+      "DISTRACTED",
+      "TALKING"
+    ],
+    "raw_model_metrics": {
+      "samples": 22800,
+      "accuracy": 0.5064473684210526,
+      "precision": 0.516296726376871,
+      "recall": 0.4811197990558795,
+      "macro_precision": 0.516296726376871,
+      "macro_recall": 0.4811197990558795,
+      "macro_f1": 0.4924882326245978,
+      "weighted_precision": 0.5465727279029908,
+      "weighted_recall": 0.5064473684210526,
+      "weighted_f1": 0.5209029354860505,
+      "actual_class_counts": {
+        "NORMAL": 11908,
+        "YAWNING": 2910,
+        "DISTRACTED": 3002,
+        "TALKING": 4980
+      },
+      "predicted_class_counts": {
+        "NORMAL": 10346,
+        "YAWNING": 2470,
+        "DISTRACTED": 2434,
+        "TALKING": 7550
+      },
+      "confusion_matrix": {
+        "NORMAL": {
+          "NORMAL": 6776,
+          "YAWNING": 271,
+          "DISTRACTED": 1126,
+          "TALKING": 3735
+        },
+        "YAWNING": {
+          "NORMAL": 380,
+          "YAWNING": 2057,
+          "DISTRACTED": 119,
+          "TALKING": 354
+        },
+        "DISTRACTED": {
+          "NORMAL": 636,
+          "YAWNING": 53,
+          "DISTRACTED": 783,
+          "TALKING": 1530
+        },
+        "TALKING": {
+          "NORMAL": 2554,
+          "YAWNING": 89,
+          "DISTRACTED": 406,
+          "TALKING": 1931
+        }
+      },
+      "per_class": {
+        "NORMAL": {
+          "true_positive": 6776,
+          "false_positive": 3570,
+          "true_negative": 7322,
+          "false_negative": 5132,
+          "precision": 0.6549391069012178,
+          "recall": 0.5690292240510582,
+          "f1": 0.6089691740810641,
+          "false_positive_rate": 0.3277634961439589,
+          "false_negative_rate": 0.4309707759489419,
+          "actual_count": 11908,
+          "predicted_count": 10346,
+          "support": 11908
+        },
+        "YAWNING": {
+          "true_positive": 2057,
+          "false_positive": 413,
+          "true_negative": 19477,
+          "false_negative": 853,
+          "precision": 0.8327935222672065,
+          "recall": 0.706872852233677,
+          "f1": 0.7646840148698886,
+          "false_positive_rate": 0.020764203117144293,
+          "false_negative_rate": 0.29312714776632304,
+          "actual_count": 2910,
+          "predicted_count": 2470,
+          "support": 2910
+        },
+        "DISTRACTED": {
+          "true_positive": 783,
+          "false_positive": 1651,
+          "true_negative": 18147,
+          "false_negative": 2219,
+          "precision": 0.3216926869350863,
+          "recall": 0.2608261159227182,
+          "f1": 0.28807947019867547,
+          "false_positive_rate": 0.08339226184463078,
+          "false_negative_rate": 0.7391738840772818,
+          "actual_count": 3002,
+          "predicted_count": 2434,
+          "support": 3002
+        },
+        "TALKING": {
+          "true_positive": 1931,
+          "false_positive": 5619,
+          "true_negative": 12201,
+          "false_negative": 3049,
+          "precision": 0.25576158940397353,
+          "recall": 0.38775100401606427,
+          "f1": 0.30822027134876295,
+          "false_positive_rate": 0.31531986531986533,
+          "false_negative_rate": 0.6122489959839358,
+          "actual_count": 4980,
+          "predicted_count": 7550,
+          "support": 4980
+        }
+      }
+    },
+    "total_processed_frames": 24762,
+    "labelled_frames": 23381,
+    "unlabelled_frames_excluded": 1381,
+    "calibration_frames_processed": 556,
+    "calibration_frames_excluded": 556,
+    "face_not_detected_excluded_frames": 61,
+    "unclassified_excluded_frames": 570,
+    "excluded_frames": 2568,
+    "evaluated_frames": 22194,
+    "face_detection_expected_frames": 23381,
+    "face_detection_failures": 25,
+    "face_detection_failure_rate": 0.0010692442581583337,
+    "face_detection_rate": 0.9989307557418416,
+    "face_not_detected_output_frames": 61,
+    "raw_vs_final_disagreement_frames": 2223,
+    "prediction_source": "Four-class confusion matrix excludes calibration, face-missing, and unclassified outputs; counts for each are reported separately."
+  },
+  "warnings": [
+    "Face-missing frames are measured separately and excluded from the four-class matrix because the annotations do not independently label face visibility.",
+    "Ground-truth videos not included in this run: driver10.avi"
+  ],
+  "evaluation_protocol": {
+    "ground_truth_classes": [
+      "NORMAL",
+      "YAWNING",
+      "DISTRACTED",
+      "TALKING"
+    ],
+    "prediction_source": "raw_model_behavior is direct classifier output; predicted_label is the final rule/temporal-filter decision.",
+    "calibration_policy": "Calibration status is copied from the prediction record's raw_behavior field and those frames are excluded.",
+    "unlabelled_policy": "Decoded frames outside all ground-truth intervals are retained in predictions.csv and excluded from classification metrics.",
+    "face_detection_policy": "Face-missing outputs are excluded from class metrics and reported separately; they are never coerced to NORMAL.",
+    "face_expected_assumption": "Frames inside behavior-labeled intervals are treated as frames where a driver face is expected; the annotations do not provide independent face-visibility labels."
+  },
+  "video_validation": {
+    "videos": [
+      {
+        "video_name": "driver1.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 2741,
+        "metadata_reported_frames": 2741,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 91.365753,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 91.33242,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 13.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 391,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 14.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 13.99986,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 15.0,
+            "end_time_seconds": 16.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 15.033183000000001,
+            "sampled_last_timestamp_seconds": 15.99984,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 17.0,
+            "end_time_seconds": 18.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 17.033163000000002,
+            "sampled_last_timestamp_seconds": 17.99982,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 19.0,
+            "end_time_seconds": 24.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 19.033143000000003,
+            "sampled_last_timestamp_seconds": 23.999760000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 29.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 28.99971,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 30.0,
+            "end_time_seconds": 32.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 30.033033,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 33.0,
+            "end_time_seconds": 34.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 33.033003,
+            "sampled_last_timestamp_seconds": 33.99966,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 35.0,
+            "end_time_seconds": 38.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 35.032983,
+            "sampled_last_timestamp_seconds": 37.99962,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 38.0,
+            "end_time_seconds": 42.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 38.032953,
+            "sampled_last_timestamp_seconds": 41.99958,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 43.0,
+            "end_time_seconds": 44.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 43.032903000000005,
+            "sampled_last_timestamp_seconds": 43.99956,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 45.0,
+            "end_time_seconds": 47.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 45.03288300000001,
+            "sampled_last_timestamp_seconds": 46.99953,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 48.0,
+            "end_time_seconds": 51.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 48.032853,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 52.0,
+            "end_time_seconds": 53.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 52.032813000000004,
+            "sampled_last_timestamp_seconds": 52.99947,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 54.0,
+            "end_time_seconds": 58.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 54.032793000000005,
+            "sampled_last_timestamp_seconds": 57.99942,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 59.0,
+            "end_time_seconds": 78.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 570,
+            "sampled_first_timestamp_seconds": 59.032743,
+            "sampled_last_timestamp_seconds": 77.99922000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 79.0,
+            "end_time_seconds": 87.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 240,
+            "sampled_first_timestamp_seconds": 79.032543,
+            "sampled_last_timestamp_seconds": 86.99913000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 88.0,
+            "end_time_seconds": 91.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 88.032453,
+            "sampled_last_timestamp_seconds": 90.99909000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver2.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 2180,
+        "metadata_reported_frames": 2180,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 72.66593999999999,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 72.63260700000001,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 3.0,
+            "end_time_seconds": 5.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 3.033303,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 6.0,
+            "end_time_seconds": 9.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 6.033273,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 10.0,
+            "end_time_seconds": 11.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 10.033233000000001,
+            "sampled_last_timestamp_seconds": 10.99989,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 12.0,
+            "end_time_seconds": 17.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 12.033213,
+            "sampled_last_timestamp_seconds": 16.99983,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 18.0,
+            "end_time_seconds": 19.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 18.033153000000002,
+            "sampled_last_timestamp_seconds": 18.99981,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 19.0,
+            "end_time_seconds": 20.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 19.033143000000003,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 23.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 22.99977,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 24.0,
+            "end_time_seconds": 25.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 24.033093,
+            "sampled_last_timestamp_seconds": 24.999750000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 29.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 28.99971,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 29.0,
+            "end_time_seconds": 30.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 29.033043000000003,
+            "sampled_last_timestamp_seconds": 29.9997,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 30.0,
+            "end_time_seconds": 32.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 30.033033,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 32.0,
+            "end_time_seconds": 34.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 32.033013000000004,
+            "sampled_last_timestamp_seconds": 33.99966,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 34.0,
+            "end_time_seconds": 36.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 34.032993000000005,
+            "sampled_last_timestamp_seconds": 35.99964,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 36.0,
+            "end_time_seconds": 39.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 36.032973,
+            "sampled_last_timestamp_seconds": 38.999610000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 40.0,
+            "end_time_seconds": 41.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 40.032933,
+            "sampled_last_timestamp_seconds": 40.999590000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 41.0,
+            "end_time_seconds": 46.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 41.032923000000004,
+            "sampled_last_timestamp_seconds": 45.99954,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 46.0,
+            "end_time_seconds": 47.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 46.032873,
+            "sampled_last_timestamp_seconds": 46.99953,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 47.0,
+            "end_time_seconds": 49.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 47.032863,
+            "sampled_last_timestamp_seconds": 48.99951,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 50.0,
+            "end_time_seconds": 52.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 50.032833000000004,
+            "sampled_last_timestamp_seconds": 51.999480000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 52.0,
+            "end_time_seconds": 54.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 52.032813000000004,
+            "sampled_last_timestamp_seconds": 53.99946,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 55.0,
+            "end_time_seconds": 56.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 55.032783,
+            "sampled_last_timestamp_seconds": 55.99944,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 56.0,
+            "end_time_seconds": 58.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 56.032773000000006,
+            "sampled_last_timestamp_seconds": 57.99942,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 58.0,
+            "end_time_seconds": 61.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 58.032753,
+            "sampled_last_timestamp_seconds": 60.999390000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 61.0,
+            "end_time_seconds": 65.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 61.032723000000004,
+            "sampled_last_timestamp_seconds": 64.99935,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 65.0,
+            "end_time_seconds": 67.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 65.032683,
+            "sampled_last_timestamp_seconds": 66.99933,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 68.0,
+            "end_time_seconds": 72.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 68.032653,
+            "sampled_last_timestamp_seconds": 71.99928,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver3.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 3057,
+        "metadata_reported_frames": 3057,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 101.89898099999999,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 101.86564800000001,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 2.0,
+            "end_time_seconds": 3.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 2.033313,
+            "sampled_last_timestamp_seconds": 2.9999700000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 4.0,
+            "end_time_seconds": 7.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 4.0332930000000005,
+            "sampled_last_timestamp_seconds": 6.99993,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 7.0,
+            "end_time_seconds": 9.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 7.033263000000001,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 10.0,
+            "end_time_seconds": 12.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 10.033233000000001,
+            "sampled_last_timestamp_seconds": 11.999880000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 14.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 13.99986,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 14.0,
+            "end_time_seconds": 15.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 14.033193,
+            "sampled_last_timestamp_seconds": 14.99985,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 15.0,
+            "end_time_seconds": 18.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 15.033183000000001,
+            "sampled_last_timestamp_seconds": 17.99982,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 18.0,
+            "end_time_seconds": 20.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 18.033153000000002,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 26.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 180,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 25.999740000000003,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 26.0,
+            "end_time_seconds": 27.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 26.033073,
+            "sampled_last_timestamp_seconds": 26.99973,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 27.0,
+            "end_time_seconds": 29.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 27.033063000000002,
+            "sampled_last_timestamp_seconds": 28.99971,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 29.0,
+            "end_time_seconds": 30.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 29.033043000000003,
+            "sampled_last_timestamp_seconds": 29.9997,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 30.0,
+            "end_time_seconds": 32.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 30.033033,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 33.0,
+            "end_time_seconds": 36.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 33.033003,
+            "sampled_last_timestamp_seconds": 35.99964,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 36.0,
+            "end_time_seconds": 40.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 36.032973,
+            "sampled_last_timestamp_seconds": 39.9996,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 40.0,
+            "end_time_seconds": 44.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 40.032933,
+            "sampled_last_timestamp_seconds": 43.99956,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 44.0,
+            "end_time_seconds": 48.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 44.032893,
+            "sampled_last_timestamp_seconds": 47.999520000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 48.0,
+            "end_time_seconds": 50.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 48.032853,
+            "sampled_last_timestamp_seconds": 49.999500000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 50.0,
+            "end_time_seconds": 51.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 50.032833000000004,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 52.0,
+            "end_time_seconds": 66.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 420,
+            "sampled_first_timestamp_seconds": 52.032813000000004,
+            "sampled_last_timestamp_seconds": 65.99933999999999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 66.0,
+            "end_time_seconds": 71.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 66.03267300000002,
+            "sampled_last_timestamp_seconds": 70.99929,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 71.0,
+            "end_time_seconds": 74.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 71.032623,
+            "sampled_last_timestamp_seconds": 73.99926,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 74.0,
+            "end_time_seconds": 81.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 74.032593,
+            "sampled_last_timestamp_seconds": 80.99919,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 81.0,
+            "end_time_seconds": 82.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 81.032523,
+            "sampled_last_timestamp_seconds": 81.99918000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 82.0,
+            "end_time_seconds": 87.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 82.03251300000001,
+            "sampled_last_timestamp_seconds": 86.99913000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 87.0,
+            "end_time_seconds": 89.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 87.032463,
+            "sampled_last_timestamp_seconds": 88.99911,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 89.0,
+            "end_time_seconds": 92.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 89.032443,
+            "sampled_last_timestamp_seconds": 91.99908,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 93.0,
+            "end_time_seconds": 96.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 93.032403,
+            "sampled_last_timestamp_seconds": 95.99904000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 96.0,
+            "end_time_seconds": 98.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 96.032373,
+            "sampled_last_timestamp_seconds": 97.99902,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 99.0,
+            "end_time_seconds": 101.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 99.03234300000001,
+            "sampled_last_timestamp_seconds": 100.99899,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver4.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 1496,
+        "metadata_reported_frames": 1496,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 49.866167999999995,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 49.832835,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 1.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 31,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 0.99999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 1.0,
+            "end_time_seconds": 5.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 1.033323,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 6.0,
+            "end_time_seconds": 9.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 6.033273,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 9.0,
+            "end_time_seconds": 10.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 9.033243,
+            "sampled_last_timestamp_seconds": 9.9999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 11.0,
+            "end_time_seconds": 12.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 11.033223000000001,
+            "sampled_last_timestamp_seconds": 11.999880000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 14.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 13.99986,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 14.0,
+            "end_time_seconds": 16.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 14.033193,
+            "sampled_last_timestamp_seconds": 15.99984,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 16.0,
+            "end_time_seconds": 18.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 16.033173,
+            "sampled_last_timestamp_seconds": 17.99982,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 18.0,
+            "end_time_seconds": 22.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 18.033153000000002,
+            "sampled_last_timestamp_seconds": 21.99978,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 22.0,
+            "end_time_seconds": 26.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 22.033113,
+            "sampled_last_timestamp_seconds": 25.999740000000003,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 26.0,
+            "end_time_seconds": 28.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 26.033073,
+            "sampled_last_timestamp_seconds": 27.99972,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 28.0,
+            "end_time_seconds": 32.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 28.033053000000002,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 32.0,
+            "end_time_seconds": 33.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 32.033013000000004,
+            "sampled_last_timestamp_seconds": 32.999669999999995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 33.0,
+            "end_time_seconds": 34.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 33.033003,
+            "sampled_last_timestamp_seconds": 33.99966,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 34.0,
+            "end_time_seconds": 37.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 34.032993000000005,
+            "sampled_last_timestamp_seconds": 36.99963,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 37.0,
+            "end_time_seconds": 40.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 37.032963,
+            "sampled_last_timestamp_seconds": 39.9996,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 40.0,
+            "end_time_seconds": 42.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 40.032933,
+            "sampled_last_timestamp_seconds": 41.99958,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 42.0,
+            "end_time_seconds": 49.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 42.032913,
+            "sampled_last_timestamp_seconds": 48.99951,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver5.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 2149,
+        "metadata_reported_frames": 2149,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 71.632617,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 71.599284,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 5.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 151,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 5.0,
+            "end_time_seconds": 9.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 5.033283,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 9.0,
+            "end_time_seconds": 11.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 9.033243,
+            "sampled_last_timestamp_seconds": 10.99989,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 11.0,
+            "end_time_seconds": 13.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 11.033223000000001,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 17.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 16.99983,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 18.0,
+            "end_time_seconds": 19.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 18.033153000000002,
+            "sampled_last_timestamp_seconds": 18.99981,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 19.0,
+            "end_time_seconds": 20.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 19.033143000000003,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 21.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 20.99979,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 21.0,
+            "end_time_seconds": 22.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 21.033123,
+            "sampled_last_timestamp_seconds": 21.99978,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 22.0,
+            "end_time_seconds": 24.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 22.033113,
+            "sampled_last_timestamp_seconds": 23.999760000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 24.0,
+            "end_time_seconds": 25.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 24.033093,
+            "sampled_last_timestamp_seconds": 24.999750000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 27.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 26.99973,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 27.0,
+            "end_time_seconds": 29.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 27.033063000000002,
+            "sampled_last_timestamp_seconds": 28.99971,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 29.0,
+            "end_time_seconds": 30.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 29.033043000000003,
+            "sampled_last_timestamp_seconds": 29.9997,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 30.0,
+            "end_time_seconds": 31.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 30.033033,
+            "sampled_last_timestamp_seconds": 30.99969,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 31.0,
+            "end_time_seconds": 32.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 31.033023,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 32.0,
+            "end_time_seconds": 34.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 32.033013000000004,
+            "sampled_last_timestamp_seconds": 33.99966,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 34.0,
+            "end_time_seconds": 35.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 34.032993000000005,
+            "sampled_last_timestamp_seconds": 34.99965,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 35.0,
+            "end_time_seconds": 37.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 35.032983,
+            "sampled_last_timestamp_seconds": 36.99963,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 37.0,
+            "end_time_seconds": 39.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 37.032963,
+            "sampled_last_timestamp_seconds": 38.999610000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 39.0,
+            "end_time_seconds": 41.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 39.032943,
+            "sampled_last_timestamp_seconds": 40.999590000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 41.0,
+            "end_time_seconds": 43.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 41.032923000000004,
+            "sampled_last_timestamp_seconds": 42.99957,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 43.0,
+            "end_time_seconds": 50.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 43.032903000000005,
+            "sampled_last_timestamp_seconds": 49.999500000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 50.0,
+            "end_time_seconds": 55.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 50.032833000000004,
+            "sampled_last_timestamp_seconds": 54.99945,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 56.0,
+            "end_time_seconds": 57.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 56.032773000000006,
+            "sampled_last_timestamp_seconds": 56.999430000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 58.0,
+            "end_time_seconds": 60.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 58.032753,
+            "sampled_last_timestamp_seconds": 59.9994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 60.0,
+            "end_time_seconds": 62.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 60.032733,
+            "sampled_last_timestamp_seconds": 61.99938,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 62.0,
+            "end_time_seconds": 64.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 62.032713,
+            "sampled_last_timestamp_seconds": 63.99936,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 64.0,
+            "end_time_seconds": 67.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 64.03269300000001,
+            "sampled_last_timestamp_seconds": 66.99933,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 67.0,
+            "end_time_seconds": 71.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 67.032663,
+            "sampled_last_timestamp_seconds": 70.99929,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver6.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 1491,
+        "metadata_reported_frames": 1491,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 49.699503,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 49.66617,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 2.0,
+            "end_time_seconds": 4.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 2.033313,
+            "sampled_last_timestamp_seconds": 3.99996,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 4.0,
+            "end_time_seconds": 7.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 4.0332930000000005,
+            "sampled_last_timestamp_seconds": 6.99993,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 7.0,
+            "end_time_seconds": 9.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 7.033263000000001,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 9.0,
+            "end_time_seconds": 11.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 9.033243,
+            "sampled_last_timestamp_seconds": 10.99989,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 11.0,
+            "end_time_seconds": 13.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 11.033223000000001,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 16.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 15.99984,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 16.0,
+            "end_time_seconds": 21.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 16.033173,
+            "sampled_last_timestamp_seconds": 20.99979,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 21.0,
+            "end_time_seconds": 25.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 21.033123,
+            "sampled_last_timestamp_seconds": 24.999750000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 26.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 25.999740000000003,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 26.0,
+            "end_time_seconds": 30.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 26.033073,
+            "sampled_last_timestamp_seconds": 29.9997,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 30.0,
+            "end_time_seconds": 33.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 30.033033,
+            "sampled_last_timestamp_seconds": 32.999669999999995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 33.0,
+            "end_time_seconds": 34.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 33.033003,
+            "sampled_last_timestamp_seconds": 33.99966,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 34.0,
+            "end_time_seconds": 35.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 34.032993000000005,
+            "sampled_last_timestamp_seconds": 34.99965,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 35.0,
+            "end_time_seconds": 36.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 35.032983,
+            "sampled_last_timestamp_seconds": 35.99964,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 36.0,
+            "end_time_seconds": 38.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 36.032973,
+            "sampled_last_timestamp_seconds": 37.99962,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 38.0,
+            "end_time_seconds": 39.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 38.032953,
+            "sampled_last_timestamp_seconds": 38.999610000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 39.0,
+            "end_time_seconds": 41.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 39.032943,
+            "sampled_last_timestamp_seconds": 40.999590000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 41.0,
+            "end_time_seconds": 44.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 41.032923000000004,
+            "sampled_last_timestamp_seconds": 43.99956,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 44.0,
+            "end_time_seconds": 49.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 44.032893,
+            "sampled_last_timestamp_seconds": 48.99951,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver7.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 3618,
+        "metadata_reported_frames": 3618,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 120.598794,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 120.565461,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 2.0,
+            "end_time_seconds": 4.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 2.033313,
+            "sampled_last_timestamp_seconds": 3.99996,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 4.0,
+            "end_time_seconds": 8.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 4.0332930000000005,
+            "sampled_last_timestamp_seconds": 7.99992,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 8.0,
+            "end_time_seconds": 9.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 8.033253,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 9.0,
+            "end_time_seconds": 21.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 360,
+            "sampled_first_timestamp_seconds": 9.033243,
+            "sampled_last_timestamp_seconds": 20.99979,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 21.0,
+            "end_time_seconds": 23.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 21.033123,
+            "sampled_last_timestamp_seconds": 22.99977,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 23.0,
+            "end_time_seconds": 28.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 23.033103,
+            "sampled_last_timestamp_seconds": 27.99972,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 28.0,
+            "end_time_seconds": 38.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 300,
+            "sampled_first_timestamp_seconds": 28.033053000000002,
+            "sampled_last_timestamp_seconds": 37.99962,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 38.0,
+            "end_time_seconds": 42.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 38.032953,
+            "sampled_last_timestamp_seconds": 41.99958,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 42.0,
+            "end_time_seconds": 43.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 42.032913,
+            "sampled_last_timestamp_seconds": 42.99957,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 43.0,
+            "end_time_seconds": 45.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 43.032903000000005,
+            "sampled_last_timestamp_seconds": 44.999550000000006,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 45.0,
+            "end_time_seconds": 51.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 180,
+            "sampled_first_timestamp_seconds": 45.03288300000001,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 51.0,
+            "end_time_seconds": 56.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 51.032823,
+            "sampled_last_timestamp_seconds": 55.99944,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 56.0,
+            "end_time_seconds": 59.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 56.032773000000006,
+            "sampled_last_timestamp_seconds": 58.999410000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 59.0,
+            "end_time_seconds": 61.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 59.032743,
+            "sampled_last_timestamp_seconds": 60.999390000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 61.0,
+            "end_time_seconds": 64.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 61.032723000000004,
+            "sampled_last_timestamp_seconds": 63.99936,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 64.0,
+            "end_time_seconds": 70.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 180,
+            "sampled_first_timestamp_seconds": 64.03269300000001,
+            "sampled_last_timestamp_seconds": 69.9993,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 70.0,
+            "end_time_seconds": 74.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 70.032633,
+            "sampled_last_timestamp_seconds": 73.99926,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 74.0,
+            "end_time_seconds": 80.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 180,
+            "sampled_first_timestamp_seconds": 74.032593,
+            "sampled_last_timestamp_seconds": 79.9992,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 80.0,
+            "end_time_seconds": 82.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 80.032533,
+            "sampled_last_timestamp_seconds": 81.99918000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 82.0,
+            "end_time_seconds": 84.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 82.03251300000001,
+            "sampled_last_timestamp_seconds": 83.99916,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 84.0,
+            "end_time_seconds": 86.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 84.032493,
+            "sampled_last_timestamp_seconds": 85.99914,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 86.0,
+            "end_time_seconds": 93.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 86.03247300000001,
+            "sampled_last_timestamp_seconds": 92.99907,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 93.0,
+            "end_time_seconds": 97.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 93.032403,
+            "sampled_last_timestamp_seconds": 96.99903,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 97.0,
+            "end_time_seconds": 102.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 97.032363,
+            "sampled_last_timestamp_seconds": 101.99897999999999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 102.0,
+            "end_time_seconds": 104.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 102.03231300000002,
+            "sampled_last_timestamp_seconds": 103.99896000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 104.0,
+            "end_time_seconds": 107.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 104.03229300000001,
+            "sampled_last_timestamp_seconds": 106.99893,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 107.0,
+            "end_time_seconds": 112.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 107.032263,
+            "sampled_last_timestamp_seconds": 111.99888,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 112.0,
+            "end_time_seconds": 115.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 112.032213,
+            "sampled_last_timestamp_seconds": 114.99885,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 115.0,
+            "end_time_seconds": 120.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 115.032183,
+            "sampled_last_timestamp_seconds": 119.9988,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver8.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 2297,
+        "metadata_reported_frames": 2297,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 76.565901,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 76.532568,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 5.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 151,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 5.0,
+            "end_time_seconds": 7.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 5.033283,
+            "sampled_last_timestamp_seconds": 6.99993,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 7.0,
+            "end_time_seconds": 11.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 7.033263000000001,
+            "sampled_last_timestamp_seconds": 10.99989,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 11.0,
+            "end_time_seconds": 13.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 11.033223000000001,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 14.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 13.99986,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 14.0,
+            "end_time_seconds": 16.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 14.033193,
+            "sampled_last_timestamp_seconds": 15.99984,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 16.0,
+            "end_time_seconds": 20.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 16.033173,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 22.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 21.99978,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 22.0,
+            "end_time_seconds": 25.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 22.033113,
+            "sampled_last_timestamp_seconds": 24.999750000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 32.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 31.99968,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 32.0,
+            "end_time_seconds": 35.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 32.033013000000004,
+            "sampled_last_timestamp_seconds": 34.99965,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 35.0,
+            "end_time_seconds": 39.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 35.032983,
+            "sampled_last_timestamp_seconds": 38.999610000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 40.0,
+            "end_time_seconds": 43.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 40.032933,
+            "sampled_last_timestamp_seconds": 42.99957,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 43.0,
+            "end_time_seconds": 45.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 43.032903000000005,
+            "sampled_last_timestamp_seconds": 44.999550000000006,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 45.0,
+            "end_time_seconds": 48.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 45.03288300000001,
+            "sampled_last_timestamp_seconds": 47.999520000000004,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 48.0,
+            "end_time_seconds": 53.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 48.032853,
+            "sampled_last_timestamp_seconds": 52.99947,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 53.0,
+            "end_time_seconds": 55.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 53.032803,
+            "sampled_last_timestamp_seconds": 54.99945,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 55.0,
+            "end_time_seconds": 58.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 55.032783,
+            "sampled_last_timestamp_seconds": 57.99942,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 58.0,
+            "end_time_seconds": 60.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 58.032753,
+            "sampled_last_timestamp_seconds": 59.9994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 60.0,
+            "end_time_seconds": 63.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 60.032733,
+            "sampled_last_timestamp_seconds": 62.999370000000006,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 63.0,
+            "end_time_seconds": 66.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 63.03270300000001,
+            "sampled_last_timestamp_seconds": 65.99933999999999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 66.0,
+            "end_time_seconds": 70.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 66.03267300000002,
+            "sampled_last_timestamp_seconds": 69.9993,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 70.0,
+            "end_time_seconds": 73.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 70.032633,
+            "sampled_last_timestamp_seconds": 72.99927000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 73.0,
+            "end_time_seconds": 76.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 73.03260300000001,
+            "sampled_last_timestamp_seconds": 75.99924,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver9.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 1532,
+        "metadata_reported_frames": 1532,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 51.066156,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 51.032823,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 2.0,
+            "end_time_seconds": 6.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 2.033313,
+            "sampled_last_timestamp_seconds": 5.9999400000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 6.0,
+            "end_time_seconds": 8.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 6.033273,
+            "sampled_last_timestamp_seconds": 7.99992,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 8.0,
+            "end_time_seconds": 11.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 8.033253,
+            "sampled_last_timestamp_seconds": 10.99989,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 11.0,
+            "end_time_seconds": 12.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 11.033223000000001,
+            "sampled_last_timestamp_seconds": 11.999880000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 12.0,
+            "end_time_seconds": 17.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 12.033213,
+            "sampled_last_timestamp_seconds": 16.99983,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 17.0,
+            "end_time_seconds": 18.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 17.033163000000002,
+            "sampled_last_timestamp_seconds": 17.99982,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 18.0,
+            "end_time_seconds": 20.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 18.033153000000002,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 24.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 23.999760000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 24.0,
+            "end_time_seconds": 25.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 24.033093,
+            "sampled_last_timestamp_seconds": 24.999750000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 25.0,
+            "end_time_seconds": 27.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 25.033083,
+            "sampled_last_timestamp_seconds": 26.99973,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 27.0,
+            "end_time_seconds": 28.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 27.033063000000002,
+            "sampled_last_timestamp_seconds": 27.99972,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 28.0,
+            "end_time_seconds": 31.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 28.033053000000002,
+            "sampled_last_timestamp_seconds": 30.99969,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 31.0,
+            "end_time_seconds": 33.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 31.033023,
+            "sampled_last_timestamp_seconds": 32.999669999999995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 34.0,
+            "end_time_seconds": 37.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 34.032993000000005,
+            "sampled_last_timestamp_seconds": 36.99963,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 37.0,
+            "end_time_seconds": 38.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 37.032963,
+            "sampled_last_timestamp_seconds": 37.99962,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 38.0,
+            "end_time_seconds": 41.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 38.032953,
+            "sampled_last_timestamp_seconds": 40.999590000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 41.0,
+            "end_time_seconds": 43.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 41.032923000000004,
+            "sampled_last_timestamp_seconds": 42.99957,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 43.0,
+            "end_time_seconds": 46.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 43.032903000000005,
+            "sampled_last_timestamp_seconds": 45.99954,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 46.0,
+            "end_time_seconds": 51.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 46.032873,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver11.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 1683,
+        "metadata_reported_frames": 1683,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 56.099439,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 56.066106000000005,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 5.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 151,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 5.0,
+            "end_time_seconds": 6.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 5.033283,
+            "sampled_last_timestamp_seconds": 5.9999400000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 6.0,
+            "end_time_seconds": 8.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 6.033273,
+            "sampled_last_timestamp_seconds": 7.99992,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 8.0,
+            "end_time_seconds": 9.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 8.033253,
+            "sampled_last_timestamp_seconds": 8.99991,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 9.0,
+            "end_time_seconds": 10.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 9.033243,
+            "sampled_last_timestamp_seconds": 9.9999,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 10.0,
+            "end_time_seconds": 12.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 10.033233000000001,
+            "sampled_last_timestamp_seconds": 11.999880000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 12.0,
+            "end_time_seconds": 13.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 12.033213,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 15.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 14.99985,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 15.0,
+            "end_time_seconds": 19.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 15.033183000000001,
+            "sampled_last_timestamp_seconds": 18.99981,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 19.0,
+            "end_time_seconds": 24.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 19.033143000000003,
+            "sampled_last_timestamp_seconds": 23.999760000000002,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 24.0,
+            "end_time_seconds": 28.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 24.033093,
+            "sampled_last_timestamp_seconds": 27.99972,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 28.0,
+            "end_time_seconds": 31.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 28.033053000000002,
+            "sampled_last_timestamp_seconds": 30.99969,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 31.0,
+            "end_time_seconds": 33.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 31.033023,
+            "sampled_last_timestamp_seconds": 32.999669999999995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 33.0,
+            "end_time_seconds": 35.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 33.033003,
+            "sampled_last_timestamp_seconds": 34.99965,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 35.0,
+            "end_time_seconds": 42.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 35.032983,
+            "sampled_last_timestamp_seconds": 41.99958,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 42.0,
+            "end_time_seconds": 46.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 42.032913,
+            "sampled_last_timestamp_seconds": 45.99954,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 46.0,
+            "end_time_seconds": 49.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 46.032873,
+            "sampled_last_timestamp_seconds": 48.99951,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 49.0,
+            "end_time_seconds": 51.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 60,
+            "sampled_first_timestamp_seconds": 49.032843,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 51.0,
+            "end_time_seconds": 56.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 51.032823,
+            "sampled_last_timestamp_seconds": 55.99944,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      },
+      {
+        "video_name": "driver12.avi",
+        "ground_truth_video_name_matches_basename": true,
+        "decoded_frames": 2518,
+        "metadata_reported_frames": 2518,
+        "frame_count_matches_metadata": true,
+        "fps": 30.00030000300003,
+        "duration_seconds": 83.93249399999999,
+        "first_frame_timestamp_seconds": 0.0,
+        "last_frame_timestamp_seconds": 83.899161,
+        "frame_indexes_contiguous_from_zero": true,
+        "frame_timestamps_strictly_increasing": true,
+        "frame_timestamps_within_video_duration": true,
+        "ground_truth_intervals": [
+          {
+            "start_time_seconds": 0.0,
+            "end_time_seconds": 2.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 61,
+            "sampled_first_timestamp_seconds": 0.0,
+            "sampled_last_timestamp_seconds": 1.99998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 2.0,
+            "end_time_seconds": 5.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 2.033313,
+            "sampled_last_timestamp_seconds": 4.99995,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 5.0,
+            "end_time_seconds": 13.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 240,
+            "sampled_first_timestamp_seconds": 5.033283,
+            "sampled_last_timestamp_seconds": 12.999870000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 13.0,
+            "end_time_seconds": 14.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 13.033203,
+            "sampled_last_timestamp_seconds": 13.99986,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 14.0,
+            "end_time_seconds": 15.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 14.033193,
+            "sampled_last_timestamp_seconds": 14.99985,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 15.0,
+            "end_time_seconds": 19.0,
+            "label": "TALKING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 15.033183000000001,
+            "sampled_last_timestamp_seconds": 18.99981,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 19.0,
+            "end_time_seconds": 20.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 30,
+            "sampled_first_timestamp_seconds": 19.033143000000003,
+            "sampled_last_timestamp_seconds": 19.9998,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 20.0,
+            "end_time_seconds": 23.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 20.033133,
+            "sampled_last_timestamp_seconds": 22.99977,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 23.0,
+            "end_time_seconds": 28.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 23.033103,
+            "sampled_last_timestamp_seconds": 27.99972,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 28.0,
+            "end_time_seconds": 38.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 300,
+            "sampled_first_timestamp_seconds": 28.033053000000002,
+            "sampled_last_timestamp_seconds": 37.99962,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 38.0,
+            "end_time_seconds": 42.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 38.032953,
+            "sampled_last_timestamp_seconds": 41.99958,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 42.0,
+            "end_time_seconds": 51.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 270,
+            "sampled_first_timestamp_seconds": 42.032913,
+            "sampled_last_timestamp_seconds": 50.999489999999994,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 51.0,
+            "end_time_seconds": 54.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 51.032823,
+            "sampled_last_timestamp_seconds": 53.99946,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 54.0,
+            "end_time_seconds": 59.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 150,
+            "sampled_first_timestamp_seconds": 54.032793000000005,
+            "sampled_last_timestamp_seconds": 58.999410000000005,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 59.0,
+            "end_time_seconds": 63.0,
+            "label": "YAWNING",
+            "decoded_frames_in_interval": 120,
+            "sampled_first_timestamp_seconds": 59.032743,
+            "sampled_last_timestamp_seconds": 62.999370000000006,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 63.0,
+            "end_time_seconds": 73.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 300,
+            "sampled_first_timestamp_seconds": 63.03270300000001,
+            "sampled_last_timestamp_seconds": 72.99927000000001,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 73.0,
+            "end_time_seconds": 76.0,
+            "label": "DISTRACTED",
+            "decoded_frames_in_interval": 90,
+            "sampled_first_timestamp_seconds": 73.03260300000001,
+            "sampled_last_timestamp_seconds": 75.99924,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          },
+          {
+            "start_time_seconds": 76.0,
+            "end_time_seconds": 83.0,
+            "label": "NORMAL",
+            "decoded_frames_in_interval": 210,
+            "sampled_first_timestamp_seconds": 76.032573,
+            "sampled_last_timestamp_seconds": 82.99917,
+            "frame_labels_match_interval": true,
+            "interval_within_video_duration": true
+          }
+        ]
+      }
+    ],
+    "unused_ground_truth_video_names": [
+      "driver10.avi"
+    ],
+    "all_ground_truth_video_names_match": true,
+    "all_video_timestamps_monotonic": true,
+    "all_frame_indexes_contiguous": true,
+    "all_timestamps_within_video_durations": true,
+    "all_frame_counts_match_metadata": true,
+    "all_intervals_within_video_durations": true,
+    "all_interval_frame_labels_match": true
+  }
+}

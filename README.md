@@ -10,10 +10,10 @@ packaged buffered runtime is used by both the new entry point and the Phase 3 co
 launcher. The monitor continues to use one camera feed and the existing recognition,
 behavior/gaze, YOLO, and alert behavior.
 
-Emotion is informational only. The packaged SVM predicts one of
+Emotion is informational only. The packaged SVM classifier predicts one of
 `angry, confused, disgust, fear, happy, neutral, sad, shy, surprise`; it is shown separately
-from safety alerts and is never treated as a calibrated confidence or as proof of a driver's
-internal emotional state. The independent worker requires the existing driver-recognition
+from safety alerts. The SVM returns a class label, not a confidence score or a finding about a
+driver's internal emotional state. The independent worker requires the existing driver-recognition
 result and a fresh face region associated with that driver; otherwise it displays `unknown`.
 Emotion does not affect safety alerts, behavior-model inputs, profiles, notifications, or logs,
 and is cleared when the live session stops.
@@ -27,7 +27,7 @@ install the project extras:
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip setuptools wheel
-python -m pip install -e ".[monitor,recognition,emotion]"
+python -m pip install -e ".[monitor,recognition,emotion-svm]"
 ```
 
 On Windows, the `recognition` extra may need Visual Studio 2022 Build Tools with the
@@ -37,12 +37,9 @@ Without a working compiler, the full install can fail. See
 [docs/driver-monitoring-setup.md](docs/driver-monitoring-setup.md) for the compiler setup and
 troubleshooting details.
 
-The emotion extra installs TensorFlow and DeepFace and can require substantial download and disk
-space. The combined extras are not yet validated as a clean, cross-platform install: DeepFace and
-its `retina-face` dependency request OpenCV distributions that overlap the monitor's contrib build.
-After installing, verify `cv2` and MediaPipe imports and test on the target computer before using a
-webcam. The install command above describes the requested dependencies; it is not a guarantee that
-the complete environment has been validated on every operating system.
+The `emotion-svm` extra installs pandas for the SVM feature pipeline. Its model and feature
+metadata are packaged under `models/emotion_classifier/`. After installing, verify `cv2`,
+MediaPipe, and pandas imports and test on the target computer before using a webcam.
 
 Start live monitoring, including the optional aggregate timing summary:
 

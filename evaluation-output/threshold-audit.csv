@@ -1,0 +1,5 @@
+metric,value
+status,threshold_audit
+production_thresholds_modified,False
+experimental_threshold_tuning_performed,False
+warning,Threshold values document the current integrated runtime defaults; they are not optimized or applied by evaluation.

@@ -43,7 +43,7 @@ class CombinedMonitoringTests(unittest.TestCase):
                     "fatigue_alert": False,
                     "gaze_distraction_confirmed": False,
                     "yawn_event": False,
-                    "object_detections": [],
+                    "raw_object_detections": [],
                 })
                 self.assertEqual(build_safety_alerts(values), [])
 
@@ -54,7 +54,7 @@ class CombinedMonitoringTests(unittest.TestCase):
             "fatigue_alert": False,
             "gaze_distraction_confirmed": True,
             "yawn_event": False,
-            "object_detections": [{"class_id": 0}],
+            "raw_object_detections": [{"class_id": 0}],
             "driver_confirmed": True,
             "phone_detection_confirmed": True,
             "driver_phone_alert": True,

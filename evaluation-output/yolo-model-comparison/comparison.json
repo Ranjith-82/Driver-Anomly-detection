@@ -1,0 +1,730 @@
+{
+  "status": "complete",
+  "evaluation": {
+    "dataset_yaml": "C:\\Users\\HP\\Downloads\\yolov8\\merged_driver_objects_v1\\data.yaml",
+    "dataset_root": "C:\\Users\\HP\\Downloads\\yolov8\\merged_driver_objects_v1",
+    "validation_split": "C:\\Users\\HP\\Downloads\\yolov8\\merged_driver_objects_v1\\valid\\images",
+    "images": 890,
+    "empty_label_images": 76,
+    "ground_truth_boxes_by_class": {
+      "Phone": 380,
+      "Cigarette": 94,
+      "Cup": 415,
+      "Bottle": 242
+    },
+    "class_mapping": {
+      "0": "phone",
+      "1": "cigarette",
+      "2": "cup",
+      "3": "bottle"
+    },
+    "settings": {
+      "imgsz": 416,
+      "confidence_floor": 0.001,
+      "nms_iou": 0.45,
+      "max_det": 20,
+      "device": "cpu",
+      "batch": 1,
+      "operating_point_iou": 0.5,
+      "dms_effective_confidence_by_class": {
+        "Phone": 0.2,
+        "Cigarette": 0.75,
+        "Cup": 0.35,
+        "Bottle": 0.4
+      },
+      "dms_max_box_fraction": 0.85,
+      "dms_base_confidence": 0.1,
+      "dms_thresholding_note": "The per-class limits are all above the base confidence, so they are the effective score thresholds."
+    },
+    "notes": [
+      "P/R/F1 in common_confidence_metrics use the same confidence floor (0.001) for both models.",
+      "mAP is confidence-ranked AP at IoU thresholds 0.50 through 0.95.",
+      "dms_threshold_metrics apply current DMS per-class confidence limits and 0.85 maximum box fraction to both models; AP fields are intentionally omitted.",
+      "Confusion matrices use greedy highest-IoU one-to-one matching at IoU 0.50, include cross-class matches, and include background row/column.",
+      "Model B was trained with this data.yaml and its validation split; it is not an independent test set, so its score may be optimistic.",
+      "Inference speed is CPU, batch-one; wall time includes image decode/preprocessing but excludes model loading. DMS temporal tracking/alerts are excluded."
+    ]
+  },
+  "models": {
+    "Model A - Existing DMS": {
+      "model_path": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\models\\objects\\best_phone_finetuned_v1.pt",
+      "sha256": "4755731cb269c7fd8890da5d70380d63b1849e3daced7b603aecd3d4db2777c6",
+      "file_size_bytes": 6472106,
+      "file_size_mb_decimal": 6.472106,
+      "file_size_mib": 6.172281265258789,
+      "model_class_mapping": {
+        "0": "phone",
+        "1": "cigarette",
+        "2": "cup",
+        "3": "bottle"
+      },
+      "dataset_class_mapping": {
+        "0": "phone",
+        "1": "cigarette",
+        "2": "cup",
+        "3": "bottle"
+      },
+      "images_evaluated": 890,
+      "wall_seconds_including_decode_and_preprocess": 42.87765650000074,
+      "wall_ms_per_image_including_decode_and_preprocess": 48.177142134832295,
+      "wall_images_per_second": 20.75673142257634,
+      "ultralytics_stage_ms_per_image": {
+        "preprocess": 1.4241334831873818,
+        "inference": 42.05261101129774,
+        "postprocess": 0.8852420224817312,
+        "sum": 44.36198651696686
+      },
+      "common_confidence_metrics": {
+        "images": 890,
+        "true_positive": 700,
+        "false_positive": 10652,
+        "false_negative": 431,
+        "precision": 0.061663143058491895,
+        "recall": 0.618921308576481,
+        "f1": 0.11215252743731474,
+        "mean_iou_at_0_50": 0.8563724034199531,
+        "map50": 0.4380391580330708,
+        "map50_95": 0.3263317329168066,
+        "per_class": {
+          "Phone": {
+            "ground_truth": 380,
+            "predictions": 3501,
+            "true_positive": 151,
+            "false_positive": 3350,
+            "false_negative": 229,
+            "precision": 0.043130534133104824,
+            "recall": 0.3973684210526316,
+            "f1": 0.07781499613501675,
+            "mean_iou_at_0_50": 0.8114967012756122,
+            "ap50": 0.2289842463150161,
+            "ap50_95": 0.16036620683657685
+          },
+          "Cigarette": {
+            "ground_truth": 94,
+            "predictions": 5391,
+            "true_positive": 2,
+            "false_positive": 5389,
+            "false_negative": 92,
+            "precision": 0.0003709886848451122,
+            "recall": 0.02127659574468085,
+            "f1": 0.0007292616226071103,
+            "mean_iou_at_0_50": 0.5846985166142408,
+            "ap50": 0.0002767718632328349,
+            "ap50_95": 5.5354372646566984e-05
+          },
+          "Cup": {
+            "ground_truth": 415,
+            "predictions": 1341,
+            "true_positive": 318,
+            "false_positive": 1023,
+            "false_negative": 97,
+            "precision": 0.2371364653243848,
+            "recall": 0.7662650602409639,
+            "f1": 0.3621867881548975,
+            "mean_iou_at_0_50": 0.8718601778617229,
+            "ap50": 0.6481570323921689,
+            "ap50_95": 0.49462667246466785
+          },
+          "Bottle": {
+            "ground_truth": 242,
+            "predictions": 1119,
+            "true_positive": 229,
+            "false_positive": 890,
+            "false_negative": 13,
+            "precision": 0.20464700625558535,
+            "recall": 0.9462809917355371,
+            "f1": 0.33651726671565024,
+            "mean_iou_at_0_50": 0.866517341274068,
+            "ap50": 0.8747385815618655,
+            "ap50_95": 0.6502786979933354
+          }
+        },
+        "confusion_matrix": {
+          "Phone": {
+            "Phone": 151,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 229
+          },
+          "Cigarette": {
+            "Phone": 0,
+            "Cigarette": 2,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 92
+          },
+          "Cup": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 318,
+            "Bottle": 0,
+            "background": 97
+          },
+          "Bottle": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 229,
+            "background": 13
+          },
+          "background": {
+            "Phone": 3350,
+            "Cigarette": 5389,
+            "Cup": 1023,
+            "Bottle": 890,
+            "background": 0
+          }
+        },
+        "confusion_labels": [
+          "Phone",
+          "Cigarette",
+          "Cup",
+          "Bottle",
+          "background"
+        ]
+      },
+      "dms_threshold_metrics": {
+        "images": 890,
+        "true_positive": 496,
+        "false_positive": 222,
+        "false_negative": 635,
+        "precision": 0.6908077994428969,
+        "recall": 0.4385499557913351,
+        "f1": 0.5365062195781504,
+        "mean_iou_at_0_50": 0.8807828854531977,
+        "map50": 0.3629513313112245,
+        "map50_95": 0.27807023868026154,
+        "per_class": {
+          "Phone": {
+            "ground_truth": 380,
+            "predictions": 246,
+            "true_positive": 96,
+            "false_positive": 150,
+            "false_negative": 284,
+            "precision": 0.3902439024390244,
+            "recall": 0.25263157894736843,
+            "f1": 0.30670926517571884,
+            "mean_iou_at_0_50": 0.8653706281482715,
+            "ap50": 0.2073124815142293,
+            "ap50_95": 0.15024041030737872
+          },
+          "Cigarette": {
+            "ground_truth": 94,
+            "predictions": 2,
+            "true_positive": 0,
+            "false_positive": 2,
+            "false_negative": 94,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "mean_iou_at_0_50": 0.0,
+            "ap50": 0.0,
+            "ap50_95": 0.0
+          },
+          "Cup": {
+            "ground_truth": 415,
+            "predictions": 238,
+            "true_positive": 202,
+            "false_positive": 36,
+            "false_negative": 213,
+            "precision": 0.8487394957983193,
+            "recall": 0.4867469879518072,
+            "f1": 0.6186830015313936,
+            "mean_iou_at_0_50": 0.8933480693884405,
+            "ap50": 0.46620942359098466,
+            "ap50_95": 0.3718146520127474
+          },
+          "Bottle": {
+            "ground_truth": 242,
+            "predictions": 232,
+            "true_positive": 198,
+            "false_positive": 34,
+            "false_negative": 44,
+            "precision": 0.853448275862069,
+            "recall": 0.8181818181818182,
+            "f1": 0.8354430379746836,
+            "mean_iou_at_0_50": 0.8754364690206471,
+            "ap50": 0.7782834201396839,
+            "ap50_95": 0.5902258924009203
+          }
+        },
+        "confusion_matrix": {
+          "Phone": {
+            "Phone": 96,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 284
+          },
+          "Cigarette": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 94
+          },
+          "Cup": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 202,
+            "Bottle": 0,
+            "background": 213
+          },
+          "Bottle": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 198,
+            "background": 44
+          },
+          "background": {
+            "Phone": 150,
+            "Cigarette": 2,
+            "Cup": 36,
+            "Bottle": 34,
+            "background": 0
+          }
+        },
+        "confusion_labels": [
+          "Phone",
+          "Cigarette",
+          "Cup",
+          "Bottle",
+          "background"
+        ]
+      },
+      "confusion_matrices": {
+        "common_confidence_floor_0_001": {
+          "csv": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-a-existing\\confusion_matrix_conf_0_001.csv",
+          "png": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-a-existing\\confusion_matrix_conf_0_001.png",
+          "matrix": {
+            "Phone": {
+              "Phone": 139,
+              "Cigarette": 48,
+              "Cup": 2,
+              "Bottle": 4,
+              "background": 187
+            },
+            "Cigarette": {
+              "Phone": 0,
+              "Cigarette": 2,
+              "Cup": 0,
+              "Bottle": 0,
+              "background": 92
+            },
+            "Cup": {
+              "Phone": 20,
+              "Cigarette": 15,
+              "Cup": 301,
+              "Bottle": 13,
+              "background": 66
+            },
+            "Bottle": {
+              "Phone": 14,
+              "Cigarette": 7,
+              "Cup": 1,
+              "Bottle": 218,
+              "background": 2
+            },
+            "background": {
+              "Phone": 3328,
+              "Cigarette": 5319,
+              "Cup": 1037,
+              "Bottle": 884,
+              "background": 0
+            }
+          }
+        },
+        "active_dms_class_thresholds": {
+          "csv": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-a-existing\\confusion_matrix_dms_thresholds.csv",
+          "png": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-a-existing\\confusion_matrix_dms_thresholds.png",
+          "matrix": {
+            "Phone": {
+              "Phone": 96,
+              "Cigarette": 0,
+              "Cup": 0,
+              "Bottle": 0,
+              "background": 284
+            },
+            "Cigarette": {
+              "Phone": 0,
+              "Cigarette": 0,
+              "Cup": 0,
+              "Bottle": 0,
+              "background": 94
+            },
+            "Cup": {
+              "Phone": 2,
+              "Cigarette": 0,
+              "Cup": 202,
+              "Bottle": 1,
+              "background": 210
+            },
+            "Bottle": {
+              "Phone": 9,
+              "Cigarette": 0,
+              "Cup": 1,
+              "Bottle": 197,
+              "background": 35
+            },
+            "background": {
+              "Phone": 139,
+              "Cigarette": 2,
+              "Cup": 35,
+              "Bottle": 34,
+              "background": 0
+            }
+          }
+        }
+      }
+    },
+    "Model B - New four-class": {
+      "model_path": "C:\\Users\\HP\\Downloads\\yolov8\\runs\\driver_objects\\four_class_final_v1\\weights\\best.pt",
+      "sha256": "89662dba9d80f5d383d5757df04c526162e41670883449b530e50cbdca3db851",
+      "file_size_bytes": 6217194,
+      "file_size_mb_decimal": 6.217194,
+      "file_size_mib": 5.929178237915039,
+      "model_class_mapping": {
+        "0": "phone",
+        "1": "cigarette",
+        "2": "cup",
+        "3": "bottle"
+      },
+      "dataset_class_mapping": {
+        "0": "phone",
+        "1": "cigarette",
+        "2": "cup",
+        "3": "bottle"
+      },
+      "images_evaluated": 890,
+      "wall_seconds_including_decode_and_preprocess": 41.11243570000079,
+      "wall_ms_per_image_including_decode_and_preprocess": 46.19374797752897,
+      "wall_images_per_second": 21.647951157512736,
+      "ultralytics_stage_ms_per_image": {
+        "preprocess": 1.421790000051587,
+        "inference": 40.82513146068992,
+        "postprocess": 0.9034291010077263,
+        "sum": 43.15035056174923
+      },
+      "common_confidence_metrics": {
+        "images": 890,
+        "true_positive": 875,
+        "false_positive": 11550,
+        "false_negative": 256,
+        "precision": 0.07042253521126761,
+        "recall": 0.7736516357206012,
+        "f1": 0.12909412806137505,
+        "mean_iou_at_0_50": 0.7929488973660075,
+        "map50": 0.5286974003826075,
+        "map50_95": 0.31434570540879186,
+        "per_class": {
+          "Phone": {
+            "ground_truth": 380,
+            "predictions": 6257,
+            "true_positive": 224,
+            "false_positive": 6033,
+            "false_negative": 156,
+            "precision": 0.035799904107399715,
+            "recall": 0.5894736842105263,
+            "f1": 0.06750037667620913,
+            "mean_iou_at_0_50": 0.7570687289678425,
+            "ap50": 0.3237842206048172,
+            "ap50_95": 0.19284519557048102
+          },
+          "Cigarette": {
+            "ground_truth": 94,
+            "predictions": 2597,
+            "true_positive": 27,
+            "false_positive": 2570,
+            "false_negative": 67,
+            "precision": 0.010396611474778591,
+            "recall": 0.2872340425531915,
+            "f1": 0.020066889632107024,
+            "mean_iou_at_0_50": 0.5940535307824852,
+            "ap50": 0.07764480199909263,
+            "ap50_95": 0.012743336569007002
+          },
+          "Cup": {
+            "ground_truth": 415,
+            "predictions": 2185,
+            "true_positive": 395,
+            "false_positive": 1790,
+            "false_negative": 20,
+            "precision": 0.18077803203661327,
+            "recall": 0.9518072289156626,
+            "f1": 0.3038461538461538,
+            "mean_iou_at_0_50": 0.8154388778722873,
+            "ap50": 0.8698907985510288,
+            "ap50_95": 0.53697453103397
+          },
+          "Bottle": {
+            "ground_truth": 242,
+            "predictions": 1386,
+            "true_positive": 229,
+            "false_positive": 1157,
+            "false_negative": 13,
+            "precision": 0.16522366522366522,
+            "recall": 0.9462809917355371,
+            "f1": 0.28132678132678135,
+            "mean_iou_at_0_50": 0.8075828681420313,
+            "ap50": 0.8434697803754915,
+            "ap50_95": 0.5148197584617094
+          }
+        },
+        "confusion_matrix": {
+          "Phone": {
+            "Phone": 224,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 156
+          },
+          "Cigarette": {
+            "Phone": 0,
+            "Cigarette": 27,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 67
+          },
+          "Cup": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 395,
+            "Bottle": 0,
+            "background": 20
+          },
+          "Bottle": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 229,
+            "background": 13
+          },
+          "background": {
+            "Phone": 6033,
+            "Cigarette": 2570,
+            "Cup": 1790,
+            "Bottle": 1157,
+            "background": 0
+          }
+        },
+        "confusion_labels": [
+          "Phone",
+          "Cigarette",
+          "Cup",
+          "Bottle",
+          "background"
+        ]
+      },
+      "dms_threshold_metrics": {
+        "images": 890,
+        "true_positive": 605,
+        "false_positive": 194,
+        "false_negative": 526,
+        "precision": 0.7571964956195244,
+        "recall": 0.5349248452696729,
+        "f1": 0.6269430051813472,
+        "mean_iou_at_0_50": 0.8222787421092475,
+        "map50": 0.41555422927511243,
+        "map50_95": 0.2646525528593371,
+        "per_class": {
+          "Phone": {
+            "ground_truth": 380,
+            "predictions": 273,
+            "true_positive": 128,
+            "false_positive": 145,
+            "false_negative": 252,
+            "precision": 0.46886446886446886,
+            "recall": 0.3368421052631579,
+            "f1": 0.39203675344563554,
+            "mean_iou_at_0_50": 0.8043894229097478,
+            "ap50": 0.27675320940708836,
+            "ap50_95": 0.17346038637877212
+          },
+          "Cigarette": {
+            "ground_truth": 94,
+            "predictions": 0,
+            "true_positive": 0,
+            "false_positive": 0,
+            "false_negative": 94,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "mean_iou_at_0_50": 0.0,
+            "ap50": 0.0,
+            "ap50_95": 0.0
+          },
+          "Cup": {
+            "ground_truth": 415,
+            "predictions": 342,
+            "true_positive": 311,
+            "false_positive": 31,
+            "false_negative": 104,
+            "precision": 0.9093567251461988,
+            "recall": 0.7493975903614458,
+            "f1": 0.821664464993395,
+            "mean_iou_at_0_50": 0.8254708396875977,
+            "ap50": 0.7225996364131584,
+            "ap50_95": 0.4575800279621527
+          },
+          "Bottle": {
+            "ground_truth": 242,
+            "predictions": 184,
+            "true_positive": 166,
+            "false_positive": 18,
+            "false_negative": 76,
+            "precision": 0.9021739130434783,
+            "recall": 0.6859504132231405,
+            "f1": 0.7793427230046949,
+            "mean_iou_at_0_50": 0.8296563204686237,
+            "ap50": 0.662864071280203,
+            "ap50_95": 0.42756979709642334
+          }
+        },
+        "confusion_matrix": {
+          "Phone": {
+            "Phone": 128,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 252
+          },
+          "Cigarette": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 0,
+            "background": 94
+          },
+          "Cup": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 311,
+            "Bottle": 0,
+            "background": 104
+          },
+          "Bottle": {
+            "Phone": 0,
+            "Cigarette": 0,
+            "Cup": 0,
+            "Bottle": 166,
+            "background": 76
+          },
+          "background": {
+            "Phone": 145,
+            "Cigarette": 0,
+            "Cup": 31,
+            "Bottle": 18,
+            "background": 0
+          }
+        },
+        "confusion_labels": [
+          "Phone",
+          "Cigarette",
+          "Cup",
+          "Bottle",
+          "background"
+        ]
+      },
+      "confusion_matrices": {
+        "common_confidence_floor_0_001": {
+          "csv": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-b-new\\confusion_matrix_conf_0_001.csv",
+          "png": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-b-new\\confusion_matrix_conf_0_001.png",
+          "matrix": {
+            "Phone": {
+              "Phone": 223,
+              "Cigarette": 1,
+              "Cup": 0,
+              "Bottle": 4,
+              "background": 152
+            },
+            "Cigarette": {
+              "Phone": 1,
+              "Cigarette": 27,
+              "Cup": 0,
+              "Bottle": 0,
+              "background": 66
+            },
+            "Cup": {
+              "Phone": 10,
+              "Cigarette": 0,
+              "Cup": 368,
+              "Bottle": 19,
+              "background": 18
+            },
+            "Bottle": {
+              "Phone": 21,
+              "Cigarette": 0,
+              "Cup": 14,
+              "Bottle": 200,
+              "background": 7
+            },
+            "background": {
+              "Phone": 6002,
+              "Cigarette": 2569,
+              "Cup": 1803,
+              "Bottle": 1163,
+              "background": 0
+            }
+          }
+        },
+        "active_dms_class_thresholds": {
+          "csv": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-b-new\\confusion_matrix_dms_thresholds.csv",
+          "png": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\model-b-new\\confusion_matrix_dms_thresholds.png",
+          "matrix": {
+            "Phone": {
+              "Phone": 128,
+              "Cigarette": 0,
+              "Cup": 0,
+              "Bottle": 1,
+              "background": 251
+            },
+            "Cigarette": {
+              "Phone": 0,
+              "Cigarette": 0,
+              "Cup": 0,
+              "Bottle": 0,
+              "background": 94
+            },
+            "Cup": {
+              "Phone": 2,
+              "Cigarette": 0,
+              "Cup": 311,
+              "Bottle": 0,
+              "background": 102
+            },
+            "Bottle": {
+              "Phone": 9,
+              "Cigarette": 0,
+              "Cup": 2,
+              "Bottle": 166,
+              "background": 65
+            },
+            "background": {
+              "Phone": 134,
+              "Cigarette": 0,
+              "Cup": 29,
+              "Bottle": 17,
+              "background": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "comparison": {
+    "overall_map50_95_winner": "Model A - Existing DMS",
+    "active_dms_operating_f1_winner": "Model B - New four-class",
+    "per_class_map50_95_winners": {
+      "Phone": "Model B - New four-class",
+      "Cigarette": "Model B - New four-class",
+      "Cup": "Model B - New four-class",
+      "Bottle": "Model A - Existing DMS"
+    },
+    "active_runtime_recommendation": "Keep Model A active for now. Model B leads at the current DMS operating point (F1 62.69% vs 53.65%) and on AP50 for Phone, Cigarette, and Cup, but Model A has higher overall mAP50-95 (32.63% vs 31.43%) and Bottle AP50-95 (65.03% vs 51.48%). Model B was selected using this same validation split, so its score is not an independent production result. Evaluate Model B on a separate, untouched DMS test set before considering promotion; Cigarette has zero recall for both models at the current 0.75 runtime threshold."
+  },
+  "artifacts": {
+    "metrics_csv": "C:\\Users\\HP\\OneDrive\\Documents\\Driver-Anomly-friend\\evaluation-output\\yolo-model-comparison\\metrics.csv"
+  }
+}

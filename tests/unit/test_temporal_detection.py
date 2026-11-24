@@ -228,6 +228,111 @@ class ObjectDetectionWorkerStartupTests(unittest.TestCase):
 
         self.assertEqual(results.snapshot()["object_detection_status"], "ready")
 
+    def test_worker_keeps_first_hit_raw_but_unconfirmed(self):
+        results = ResultBuffer()
+        stop_event = threading.Event()
+        packet = SimpleNamespace(
+            frame_id=1,
+            timestamp=1.0,
+            frame=np.zeros((80, 80, 3)),
+        )
+
+        class OneFrame:
+            def get_newest(self, last_frame_id, event):
+                event.set()
+                return packet
+
+        detector = SimpleNamespace(
+            device_name="CPU",
+            last_inference_seconds=0.01,
+            last_postprocess_seconds=0.001,
+            detect=lambda *args, **kwargs: [{
+                "class_id": 1,
+                "name": "Cigarette",
+                "confidence": 0.9,
+                "box": (10, 10, 30, 30),
+            }],
+        )
+        worker = ObjectDetectionWorker(
+            OneFrame(),
+            results,
+            stop_event,
+            Path("model.pt"),
+        )
+        with patch(
+            "driver_monitor.monitoring.legacy_runtime.YoloObjectDetector",
+            return_value=detector,
+        ), patch("builtins.print"):
+            worker.run()
+
+        snapshot = results.snapshot()
+        self.assertEqual(len(snapshot["raw_object_detections"]), 1)
+        self.assertEqual(snapshot["confirmed_object_detections"], [])
+        self.assertFalse(
+            snapshot["tracked_object_detections"][0]["confirmed"]
+        )
+
+    def test_worker_publishes_temporally_confirmed_object_separately(self):
+        results = ResultBuffer()
+        stop_event = threading.Event()
+        packets = [
+            SimpleNamespace(
+                frame_id=1,
+                timestamp=1.0,
+                frame=np.zeros((80, 80, 3)),
+            ),
+            SimpleNamespace(
+                frame_id=3,
+                timestamp=1.3,
+                frame=np.zeros((80, 80, 3)),
+            ),
+        ]
+
+        class TwoFrames:
+            def __init__(self):
+                self.index = 0
+
+            def get_newest(self, last_frame_id, event):
+                if self.index == len(packets):
+                    event.set()
+                    return None
+                packet = packets[self.index]
+                self.index += 1
+                return packet
+
+        detector = SimpleNamespace(
+            device_name="CPU",
+            last_inference_seconds=0.01,
+            last_postprocess_seconds=0.001,
+            detect=lambda *args, **kwargs: [{
+                "class_id": 2,
+                "name": "Cup",
+                "confidence": 0.9,
+                "box": (10, 10, 30, 30),
+            }],
+        )
+        worker = ObjectDetectionWorker(
+            TwoFrames(),
+            results,
+            stop_event,
+            Path("model.pt"),
+        )
+        with patch(
+            "driver_monitor.monitoring.legacy_runtime.YoloObjectDetector",
+            return_value=detector,
+        ), patch("builtins.print"):
+            worker.run()
+
+        snapshot = results.snapshot()
+        self.assertEqual(len(snapshot["raw_object_detections"]), 1)
+        self.assertEqual(
+            [item["name"] for item in snapshot["confirmed_object_detections"]],
+            ["Cup"],
+        )
+        self.assertTrue(
+            snapshot["confirmed_object_detections"][0]["confirmed"]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -21,7 +21,7 @@ from driver_monitor.monitoring.sound import (
     YAWN_BEEP_FREQUENCY,
     _tone_wave,
 )
-from driver_monitor.ui.alert_panel import render_alert_panel
+from driver_monitor.ui.alert_panel import ALERT_CONTENT, render_alert_panel
 
 
 class AlertPanelTests(unittest.TestCase):
@@ -35,6 +35,38 @@ class AlertPanelTests(unittest.TestCase):
         self.assertEqual(panel.shape, (618, 260, 3))
         self.assertEqual(panel.dtype, np.uint8)
         self.assertEqual(tuple(panel[1, 1]), (40, 95, 235))
+
+    def test_cooldown_alert_does_not_override_current_behavior_icon(self):
+        stale_distraction = (
+            "WARNING: DRIVER DISTRACTION DETECTED. "
+            "PLEASE LOOK AT THE ROAD. (COOLDOWN)"
+        )
+        for behavior, key in (
+            ("YAWNING", "YAWNING"),
+            ("FATIGUE ALERT", "FATIGUE"),
+        ):
+            with self.subTest(behavior=behavior):
+                panel = render_alert_panel(
+                    260,
+                    618,
+                    behavior,
+                    alert_status=stale_distraction,
+                    face_present=True,
+                )
+                self.assertEqual(
+                    tuple(panel[1, 1]),
+                    ALERT_CONTENT[key][4],
+                )
+
+    def test_active_object_alert_still_overrides_behavior(self):
+        panel = render_alert_panel(
+            260,
+            618,
+            "YAWNING",
+            alert_status="CUP DETECTED",
+            face_present=True,
+        )
+        self.assertEqual(tuple(panel[1, 1]), ALERT_CONTENT["CUP"][4])
 
 
 class AlertAudioSchedulingTests(unittest.TestCase):
@@ -168,7 +200,7 @@ class AlertAudioSchedulingTests(unittest.TestCase):
             "fatigue_alert": True,
             "eyes_closed_duration": 1.5,
             "yawn_event": False,
-            "object_detections": [],
+            "confirmed_object_detections": [],
         }
         frame = np.zeros((8, 8, 3), dtype=np.uint8)
 
@@ -313,7 +345,7 @@ class AlertAudioSchedulingTests(unittest.TestCase):
     def test_object_alert_plays_once_until_detection_clears(self):
         values = self.values(
             "NORMAL",
-            object_detections=[{"class_id": 0}],
+            raw_object_detections=[{"class_id": 0}],
             driver_confirmed=True,
             phone_detection_confirmed=True,
             driver_phone_alert=True,
@@ -339,11 +371,51 @@ class AlertAudioSchedulingTests(unittest.TestCase):
         self.assertEqual(self.worker.enqueue_beeps.call_count, 2)
         self.assertEqual(self.worker.enqueue_voice.call_count, 2)
 
+    def test_raw_object_detections_do_not_play_object_audio(self):
+        self.manager.update(
+            self.values(
+                "NORMAL",
+                raw_object_detections=[
+                    {"class_id": 1, "name": "Cigarette", "confirmed": False}
+                ],
+            ),
+            0.0,
+        )
+        self.worker.enqueue_beeps.assert_not_called()
+        self.worker.enqueue_voice.assert_not_called()
+
+        self.manager.update(
+            self.values(
+                "NORMAL",
+                confirmed_object_detections=[
+                    {
+                        "class_id": 1,
+                        "name": "Cigarette",
+                        "confirmed": True,
+                    }
+                ],
+            ),
+            0.1,
+        )
+        self.worker.enqueue_beeps.assert_called_once_with(
+            "object_cigarette",
+            DISTRACTION_BEEP_FREQUENCY,
+            DISTRACTION_BEEP_DURATION,
+            count=1,
+            gap_ms=120,
+            cancel_when_inactive=False,
+        )
+        self.worker.enqueue_voice.assert_called_once_with(
+            "object_cigarette",
+            "Cigarette detected. Please focus on driving.",
+            cancel_when_inactive=False,
+        )
+
     def test_unconfirmed_or_unidentified_phone_does_not_trigger_driver_alert(self):
         self.manager.update(
             self.values(
                 "NORMAL",
-                object_detections=[{"class_id": 0}],
+                raw_object_detections=[{"class_id": 0}],
             ),
             0,
         )
@@ -353,7 +425,7 @@ class AlertAudioSchedulingTests(unittest.TestCase):
         self.manager.update(
             self.values(
                 "NORMAL",
-                object_detections=[{"class_id": 0}],
+                raw_object_detections=[{"class_id": 0}],
                 phone_detection_confirmed=True,
                 driver_phone_alert=True,
                 driver_confirmed=False,

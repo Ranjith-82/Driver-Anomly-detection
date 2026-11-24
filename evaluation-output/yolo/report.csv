@@ -1,0 +1,10 @@
+metric,value
+task,yolo
+status,pending_annotations
+dataset,video box annotations
+sample_counts.videos,1
+sample_counts.processed_frames,0
+sample_counts.evaluated_frames,0
+metrics,
+interpretation,No object-detection score is reported until every decoded video frame has valid ground-truth boxes or an explicit empty-frame row.
+prediction_rows,0

@@ -10,8 +10,10 @@ from driver_monitor.detection.emotion import (
     EmotionThresholdPolicy,
     classify_scores,
 )
+from driver_monitor.detection.cnn_emotion import CNNEmotionAnalyzer
 from driver_monitor.detection.svm_emotion import SVMEmotionAnalyzer
 from driver_monitor.models import DetectorStatus, EmotionEstimate, EmotionLabel
+from driver_monitor.monitoring.temporal import EmotionPredictionStabilizer
 
 
 class EmotionWorker(threading.Thread):
@@ -313,3 +315,132 @@ class SVMEmotionWorker(threading.Thread):
                     print(f"[EMOTION] ERROR: {self.last_error}")
         finally:
             analyzer.close()
+
+
+class CNNEmotionWorker(SVMEmotionWorker):
+    """Samples confirmed-driver face crops for MobileNet emotion inference."""
+
+    def __init__(
+        self,
+        frame_buffer: object,
+        stop_event: threading.Event,
+        read_face_state: Callable[[], Mapping[str, object]],
+        publish: Callable[[dict[str, object]], None],
+        checkpoint_path: Path,
+        interval: float = 1.0,
+    ) -> None:
+        super().__init__(
+            frame_buffer,
+            stop_event,
+            read_face_state,
+            publish,
+            checkpoint_path,
+            interval,
+        )
+        self.name = "cnn-emotion-worker"
+
+    def _publish(
+        self,
+        label: str,
+        status: str,
+        packet: object | None = None,
+        error: str = "",
+        confidence: float | None = None,
+    ) -> None:
+        self.publish({
+            "emotion_label": label,
+            "emotion_status": status,
+            "emotion_confidence": confidence,
+            "emotion_frame_id": getattr(packet, "frame_id", -1),
+            "emotion_timestamp": getattr(packet, "timestamp", 0.0),
+            "emotion_error": error,
+        })
+
+    def run(self) -> None:
+        try:
+            analyzer = CNNEmotionAnalyzer(self.model_dir)
+        except Exception as error:
+            self.last_error = str(error)
+            self._publish("unknown", "unavailable", error=self.last_error)
+            print(f"[EMOTION] ERROR: {self.last_error}")
+            return
+
+        last_frame_id = -1
+        next_run = 0.0
+        stabilizer = EmotionPredictionStabilizer()
+        active_driver_name = None
+        while not self.stop_event.is_set():
+            packet = self.frame_buffer.get_newest(
+                last_frame_id, self.stop_event
+            )
+            if packet is None:
+                continue
+            last_frame_id = packet.frame_id
+            now = time.monotonic()
+            if now < next_run:
+                continue
+            next_run = now + self.interval
+            if now - packet.timestamp > self.MAX_FRAME_AGE_SECONDS:
+                stabilizer.reset()
+                active_driver_name = None
+                self._publish("unknown", "stale", packet)
+                continue
+
+            face_state = self.read_face_state()
+            driver_name = str(face_state.get("driver_name", "")).casefold()
+            if (
+                face_state.get("driver_confirmed") is not True
+                or driver_name in {"", "unknown", "identifying..."}
+            ):
+                stabilizer.reset()
+                active_driver_name = None
+                self._publish("unknown", "unknown", packet)
+                continue
+            if driver_name != active_driver_name:
+                stabilizer.reset()
+                active_driver_name = driver_name
+            face_frame_id = face_state.get("behavior_frame_id")
+            if (
+                face_state.get("face_present") is not True
+                or not isinstance(face_frame_id, int)
+                or abs(packet.frame_id - face_frame_id)
+                > self.MAX_FACE_FRAME_DELTA
+            ):
+                stabilizer.reset()
+                self._publish("unknown", "no_face", packet)
+                continue
+
+            frame_height, frame_width = packet.frame.shape[:2]
+            driver_bounds = face_state.get("recognition_location")
+            current_bounds = face_state.get("face_bounds")
+            if not self._same_face_region(
+                driver_bounds, current_bounds, frame_width, frame_height
+            ):
+                stabilizer.reset()
+                self._publish("unknown", "unknown", packet)
+                continue
+            crop = self._crop_face(packet.frame, current_bounds)
+            if crop is None or crop.size == 0:
+                stabilizer.reset()
+                self._publish("unknown", "no_face", packet)
+                continue
+            try:
+                label, confidence = analyzer.predict(crop)
+                stable_prediction = stabilizer.update(label, confidence)
+                if stable_prediction is None:
+                    self._publish("unknown", "uncertain", packet)
+                else:
+                    stable_label, stable_score = stable_prediction
+                    self._publish(
+                        stable_label,
+                        "ready",
+                        packet,
+                        confidence=stable_score,
+                    )
+            except Exception as error:
+                stabilizer.reset()
+                self.last_error = str(error)
+                self._publish(
+                    "unknown", "unavailable", packet, self.last_error
+                )
+                print(f"[EMOTION] ERROR: {self.last_error}")

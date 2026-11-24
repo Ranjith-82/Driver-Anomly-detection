@@ -39,7 +39,10 @@ class ProjectPaths:
             behavior_model=models_dir / "behavior" / "driver_behavior_model.pkl",
             behavior_labels=models_dir / "behavior" / "driver_behavior_labels.pkl",
             face_landmarker=models_dir / "face_landmarker" / "face_landmarker.task",
-            object_model=models_dir / "objects" / "best_phone_finetuned_v1.pt",
+            object_model=Path(
+                r"C:\Users\HP\Downloads\yolov8\runs\driver_objects"
+                r"\balanced_hardneg_gpu_v1\weights\best.pt"
+            ),
         )
 
     @property
@@ -62,3 +65,7 @@ class ProjectPaths:
     @property
     def emotion_model_dir(self) -> Path:
         return self.repository_root / "models" / "emotion_classifier"
+
+    @property
+    def emotion_checkpoint(self) -> Path:
+        return self.emotion_model_dir / "best_mobilenet_emotion.pt"

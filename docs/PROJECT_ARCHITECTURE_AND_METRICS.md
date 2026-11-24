@@ -87,6 +87,7 @@ command-line arguments can override them.
 | Gaze distraction | `0.6 s` | Required continuous non-forward gaze after debounce. |
 | YOLO | image size `416`, base confidence `0.10`, IoU `0.45`, max 20 boxes | Model inference limits; each class also has its own minimum confidence. |
 | YOLO cadence | every second captured frame | `OBJECT_DETECTION_FRAME_SKIP = 2`. |
+| Non-phone object confirmation | at least 2 matching hits across `0.3 s`, IoU `0.30` | Per-object track confirmation for Cigarette, Cup, and Bottle; retains through 2 missed YOLO results and expires after `1.0 s`. |
 | Phone validation | presence `0.3 s`, driver-use suspicion `0.75 s`, alert persistence `0.5 s` | Phone track and driver-association windows. |
 | Emotion SVM | every `1.0 s` | Samples one fresh face crop; not every camera frame. |
 | Behavior label smoothing | talking `0.35 s`, yawning `0.15 s`, distraction `0.10 s`, clear `0.15 s` | Separate persistence filters after raw behavior selection. |
@@ -226,14 +227,38 @@ otherwise it specifies CPU inference. Inference uses:
 | Class ID | Class | Per-class minimum confidence |
 |---:|---|---:|
 | 0 | Phone | 0.20 |
-| 1 | Cigarette | 0.50 |
-| 2 | Cup | 0.35 |
+| 1 | Cigarette | 0.75 |
+| 2 | Cup | 0.55 |
 | 3 | Bottle | 0.40 |
 
 In addition to the model's base confidence (`0.10`), detections below the
 class minimum are discarded. The adapter also rejects unrecognized classes
 and boxes whose area exceeds 85% of the frame. Ultralytics performs its model
 post-processing with configured IoU `0.45` and maximum 20 detections.
+
+The Cup minimum was raised from `0.35` to `0.55` after a sweep on the same
+890-image validation split (IoU `0.50` matching). This reduced Cup false
+positives from 43 to 18 while reducing recall from 75.4% to 67.0%; the
+validation F1 changed from 0.812 to 0.782. Full sweep results are saved in
+`evaluation-output/cup-threshold-sweep.csv`.
+
+The object worker publishes separate `raw_object_detections`,
+`tracked_object_detections`, and `confirmed_object_detections`. Cigarette,
+Cup, and Bottle detections are associated only with tracks of the same class,
+using IoU at least `0.30`; confirmation requires at least two matching
+detections spanning `0.3 s`. These values can be configured with
+`--object-track-iou-threshold`, `--object-track-min-hits`, and
+`--object-track-persistence-seconds`. Tracks tolerate two missed processed
+YOLO results and expire after one second without an update; the expiry duration
+is configurable with `--object-max-missed-frames` and
+`--object-track-stale-after-seconds`.
+
+Raw boxes remain visible as explicitly labeled candidates, while object
+dashboard alert status, local object audio, and Telegram object alerts consume
+confirmed detections only. The specialized phone validator remains separate:
+raw phone boxes can be shown as candidates, but phone-use alerts require phone
+track confirmation, a confirmed driver, proximity to that driver, and the
+existing use/alert persistence intervals.
 
 Phone boxes are associated across processed frames using intersection over
 union:
@@ -247,11 +272,11 @@ suspicion additionally requires a confirmed identity and a current phone-box
 center inside a broad region around the recognized face. That suspicion must
 persist `0.75 s`; the alert has a further `0.5 s` persistence setting.
 
-**Display versus safety alert:** the camera view draws raw current object
-boxes. The alert panel uses current object classes to choose the corresponding
-object emoji/status instead of the normal “Drive safely” panel. This display
-does not itself establish phone use. Phone safety-alert/notification logic
-still requires the driver association and phone confirmation path.
+**Display versus safety alert:** the camera view distinguishes raw candidates
+from current confirmed object tracks. Raw detections alone do not set an object
+alert status or trigger object audio/Telegram. A confirmed phone track by itself
+does not imply driver use; phone safety alerts still require the driver
+association and phone-use confirmation path.
 
 ### SVM emotion estimator
 

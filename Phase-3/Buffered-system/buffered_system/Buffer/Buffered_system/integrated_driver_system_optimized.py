@@ -231,10 +231,124 @@ def load_driver_database():
     return drivers
 
 
-def send_telegram_alert(driver_details, reason, frame):
+TELEGRAM_ALERT_SCREENSHOT_COLORS = {
+    'FATIGUE': (45, 70, 220),
+    'YAWNING': (30, 145, 245),
+    'DISTRACTION': (210, 115, 35),
+    'TALKING': (175, 70, 190),
+    'PHONE_USE': (180, 55, 215),
+    'SMOKING': (40, 65, 220),
+    'CUP_DETECTION': (35, 155, 175),
+}
+
+
+def _infer_telegram_alert_type(reason):
+    normalized = str(reason).casefold()
+    if 'fatigue' in normalized:
+        return 'FATIGUE'
+    if 'yawn' in normalized:
+        return 'YAWNING'
+    if 'talk' in normalized:
+        return 'TALKING'
+    if 'phone' in normalized:
+        return 'PHONE_USE'
+    if 'cigarette' in normalized or 'smok' in normalized:
+        return 'SMOKING'
+    if 'cup' in normalized:
+        return 'CUP_DETECTION'
+    if 'distract' in normalized or 'gaze' in normalized:
+        return 'DISTRACTION'
+    return 'DISTRACTION'
+
+
+def _fit_screenshot_text(text, width, font, scale, thickness):
+    original = ' '.join(str(text).split())
+    text = original
+    if not text:
+        return ''
+    while text and cv2.getTextSize(text, font, scale, thickness)[0][0] > width:
+        text = text[:-2].rstrip()
+    return text if text == original else text + '...'
+
+
+def render_alert_screenshot(
+    frame,
+    alert_type,
+    title,
+    reason,
+    details=(),
+    timestamp=None,
+    screenshot_frame_id=None,
+):
+    if frame is None or not hasattr(frame, 'shape') or len(frame.shape) != 3:
+        raise ValueError('Alert screenshot requires a color camera frame')
+    if frame.shape[2] != 3 or frame.size == 0:
+        raise ValueError('Alert screenshot requires a non-empty BGR frame')
+
+    image = frame.copy()
+    height, width = image.shape[:2]
+    color = TELEGRAM_ALERT_SCREENSHOT_COLORS.get(
+        alert_type, TELEGRAM_ALERT_SCREENSHOT_COLORS['DISTRACTION'])
+    banner_height = min(height, max(120, min(170, height // 4)))
+    overlay = image.copy()
+    cv2.rectangle(overlay, (0, 0), (width, banner_height), color, -1)
+    cv2.addWeighted(overlay, 0.78, image, 0.22, 0, image)
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    title_scale = min(
+        1.0,
+        max(0.45, (width - 32) / max(
+            cv2.getTextSize(title, font, 1.0, 2)[0][0], 1)),
+    )
+    title_text = _fit_screenshot_text(
+        title, width - 32, font, title_scale, 2)
+    cv2.putText(
+        image, title_text, (16, min(34, banner_height - 12)), font,
+        title_scale, (255, 255, 255), 2, cv2.LINE_AA)
+
+    reason_text = _fit_screenshot_text(
+        reason, width - 32, font, 0.48, 1)
+    if reason_text:
+        cv2.putText(
+            image, reason_text, (16, min(62, banner_height - 10)), font,
+            0.48, (255, 255, 255), 1, cv2.LINE_AA)
+
+    details_text = ' | '.join(
+        f'{label}: {value}' for label, value in details[:2])
+    details_text = _fit_screenshot_text(
+        details_text, width - 32, font, 0.40, 1)
+    if details_text and banner_height >= 100:
+        cv2.putText(
+            image, details_text, (16, min(90, banner_height - 24)), font,
+            0.40, (255, 255, 255), 1, cv2.LINE_AA)
+    metadata = []
+    if timestamp:
+        metadata.append(f'Time: {timestamp}')
+    if screenshot_frame_id is not None:
+        metadata.append(f'Frame: {screenshot_frame_id}')
+    metadata_text = _fit_screenshot_text(
+        ' | '.join(metadata), width - 32, font, 0.34, 1)
+    if metadata_text and banner_height >= 110:
+        cv2.putText(
+            image, metadata_text, (16, banner_height - 7), font,
+            0.34, (245, 245, 245), 1, cv2.LINE_AA)
+    return image
+
+
+def send_telegram_alert(
+    driver_details,
+    reason,
+    frame,
+    *,
+    alert_type=None,
+    screenshot_title=None,
+    screenshot_reason=None,
+    screenshot_details=(),
+    event_id=None,
+    timestamp=None,
+    screenshot_frame_id=None,
+):
     try:
-        if not driver_details:
-            return False
         token = Config.BOT_TOKEN
         chat_id = Config.CHAT_ID
         if not token or not chat_id:
@@ -243,74 +357,73 @@ def send_telegram_alert(driver_details, reason, frame):
                 'and DRIVER_MONITOR_CHAT_ID.')
             return False
 
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        name = driver_details.get(
-            'full_name', driver_details.get('name', 'N/A'))
-        phone = driver_details.get('phone', 'N/A')
-        dob = driver_details.get('dob', 'N/A')
-        blood_group = driver_details.get('blood_group', 'N/A')
-        address = driver_details.get(
-            'address', driver_details.get('city', 'N/A'))
-
-        message = (
-            f'⚠️ DRIVER FATIGUE ALERT\n\n'
-            f'Name: {name}\n'
-            f'Phone: {phone}\n'
-            f'DOB: {dob}\n'
-            f'Blood Group: {blood_group}\n'
-            f'Address: {address}\n'
-            f'Reason: {reason}\n'
-            f'Time: {current_time}'
+        alert_type = alert_type or _infer_telegram_alert_type(reason)
+        alert_type_titles = {
+            'FATIGUE': 'FATIGUE DETECTED',
+            'YAWNING': 'YAWNING DETECTED',
+            'DISTRACTION': 'DRIVER DISTRACTION DETECTED',
+            'TALKING': 'TALKING DETECTED',
+            'PHONE_USE': 'POSSIBLE DRIVER PHONE USE',
+            'SMOKING': 'POSSIBLE SMOKING DETECTED',
+            'CUP_DETECTION': 'CUP DETECTED',
+        }
+        title = screenshot_title or alert_type_titles.get(
+            alert_type, 'DRIVER ALERT')
+        screenshot_reason = screenshot_reason or str(reason).splitlines()[0]
+        if event_id is None:
+            current_time = datetime.now().astimezone().isoformat(
+                timespec='seconds')
+            name = None
+            if isinstance(driver_details, dict):
+                name = driver_details.get(
+                    'full_name', driver_details.get('name'))
+            message_lines = [title, '']
+            if isinstance(name, str) and name.strip():
+                message_lines.append(f'Driver: {name.strip()}')
+            message_lines.extend([
+                f'Event: {alert_type.replace("_", " ").title()}',
+                f'Reason: {reason}',
+                f'Time: {current_time}',
+            ])
+            message = '\n'.join(message_lines)
+        else:
+            message = str(reason)
+        screenshot = render_alert_screenshot(
+            frame,
+            alert_type,
+            title,
+            screenshot_reason,
+            screenshot_details,
+            timestamp,
+            screenshot_frame_id,
         )
-
-        alert_frame = frame.copy()
-        overlay = alert_frame.copy()
-        cv2.rectangle(overlay, (0, 0),
-                      (alert_frame.shape[1], 100), (0, 0, 255), -1)
-        cv2.addWeighted(overlay, 0.3, alert_frame, 0.7, 0, alert_frame)
-        text = '⚠️ FATIGUE DETECTED ⚠️'
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 1.5
-        thickness = 3
-        (text_width, _), _ = cv2.getTextSize(text, font, font_scale, thickness)
-        x = (alert_frame.shape[1] - text_width) // 2
-        y = 60
-        cv2.putText(alert_frame, text, (x, y), font,
-                    font_scale, (0, 255, 255), thickness)
-
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        screenshot_path = f'alert_{timestamp}.jpg'
-        cv2.imwrite(screenshot_path, alert_frame)
 
         url_msg = f'https://api.telegram.org/bot{token}/sendMessage'
         params_msg = {'chat_id': chat_id, 'text': message}
         response_msg = requests.post(url_msg, params=params_msg, timeout=5)
 
         url_photo = f'https://api.telegram.org/bot{token}/sendPhoto'
-        with open(screenshot_path, 'rb') as photo_file:
-            files = {'photo': photo_file}
-            params_photo = {'chat_id': chat_id}
-            response_photo = requests.post(
-                url_photo, params=params_photo, files=files, timeout=5)
+        encoded, image_data = cv2.imencode('.jpg', screenshot)
+        if not encoded:
+            raise RuntimeError('Could not encode alert screenshot as JPEG')
+        files = {
+            'photo': ('alert.jpg', image_data.tobytes(), 'image/jpeg')
+        }
+        params_photo = {'chat_id': chat_id}
+        response_photo = requests.post(
+            url_photo, params=params_photo, files=files, timeout=5)
 
         if response_msg.status_code != 200:
             logger.error('Telegram sendMessage failed: %s', response_msg.text)
         if response_photo.status_code != 200:
             logger.error('Telegram sendPhoto failed: %s', response_photo.text)
 
-        if os.path.exists(screenshot_path):
-            os.remove(screenshot_path)
-
-        if response_msg.status_code == 200:
-            if response_photo.status_code != 200:
-                logger.warning(
-                    'Telegram text delivered, but alert photo failed.')
-            return True
-        return False
+        return (
+            response_msg.status_code == 200
+            and response_photo.status_code == 200
+        )
     except Exception:
         logger.exception('Telegram error')
-        if 'screenshot_path' in locals() and os.path.exists(screenshot_path):
-            os.remove(screenshot_path)
         return False
 
 

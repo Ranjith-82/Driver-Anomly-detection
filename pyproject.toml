@@ -26,6 +26,8 @@ emotion = [
     "tf-keras==2.18.0",
     "pandas",
 ]
+emotion-cnn = ["torch>=2.0", "torchvision>=0.15"]
+emotion-svm = ["pandas"]
 recognition = ["face-recognition==1.3.0"]
 test = []
 

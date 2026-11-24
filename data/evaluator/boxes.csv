@@ -1,0 +1,9 @@
+video_name,frame_index,class_name,x_min,y_min,x_max,y_max
+driver1.mp4,0,,,,,
+driver1.mp4,1,,,,,
+driver1.mp4,2,,,,,
+driver1.mp4,149,Phone,LEFT,TOP,RIGHT,BOTTOM
+driver1.mp4,150,Phone,LEFT,TOP,RIGHT,BOTTOM
+driver1.mp4,151,Phone,LEFT,TOP,RIGHT,BOTTOM
+driver1.mp4,566,Bottle,LEFT,TOP,RIGHT,BOTTOM
+driver1.mp4,567,Bottle,LEFT,TOP,RIGHT,BOTTOM

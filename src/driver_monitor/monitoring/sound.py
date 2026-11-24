@@ -522,13 +522,14 @@ class AlertAudioManager:
                 )
                 self.last_yawn_alert = now
 
-        detections = values.get("object_detections")
+        detections = values.get("confirmed_object_detections")
         object_classes: set[int] = set()
         if isinstance(detections, list):
             object_classes = {
                 detection["class_id"]
                 for detection in detections
                 if isinstance(detection, dict)
+                and detection.get("confirmed") is True
                 and detection.get("class_id") in OBJECT_ALERTS
                 and detection.get("class_id") != 0
             }
